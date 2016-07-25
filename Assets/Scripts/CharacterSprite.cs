@@ -10,24 +10,13 @@ public class CharacterSprite : NetworkBehaviour {
 	public Sprite monsterTwo;
 	public Sprite placeholder;
 
-	// player number (player 1, player 2, etc.)
-	[SyncVar]
-	private int playerNum;
-
 	private SpriteRenderer rend;
-
-	void Init() {
-		playerNum = 0;
-	}
+	private PlayerNumber playerNum;
 
 	// Use this for initialization
 	void Start () {
 		rend = GetComponent<SpriteRenderer>();
-	}
-
-	public override void OnStartServer()
-	{
-		UpdatePlayerNumber();
+		playerNum = GetComponent<PlayerNumber>();
 	}
 
 	void Update() {
@@ -45,20 +34,10 @@ public class CharacterSprite : NetworkBehaviour {
 	}
 
 	private bool IsPlayerOne() {
-		return playerNum == 1;
+		return playerNum.IsPlayerOne();
 	}
 
 	private bool IsPlayerTwo() {
-		return playerNum == 2;
-	}
-
-	[Server]
-	private void UpdatePlayerNumber() {
-		GameObject obj = GameObject.FindWithTag("PlayerNumberManager");
-		if( obj == null ) {
-			Debug.Log ("Failed to get PlayerNumberManager.");
-		}
-		PlayerNumberManager manager = obj.GetComponent<PlayerNumberManager>();
-		playerNum = manager.GetPlayerNumber( netId );
+		return playerNum.IsPlayerTwo();
 	}
 }

@@ -8,12 +8,11 @@ public class PlayerNumberManager : MonoBehaviour {
 	// maps from network ID to player number;
 	private Dictionary<NetworkInstanceId, int> player_numbers;
 
-	void Start() {
+	void Init () {
 		player_numbers = new Dictionary<NetworkInstanceId, int>();
 	}
 
-	public int GetPlayerNumber( NetworkInstanceId player )
-	{
+	public int GetPlayerNumber (NetworkInstanceId player) {
 		if( player_numbers.ContainsKey( player ) )
 		{
 			return player_numbers[player];
