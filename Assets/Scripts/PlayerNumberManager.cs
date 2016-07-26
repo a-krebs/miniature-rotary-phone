@@ -8,16 +8,17 @@ public class PlayerNumberManager : MonoBehaviour {
 	// maps from network ID to player number;
 	private Dictionary<NetworkInstanceId, int> player_numbers;
 
-	void Init () {
-		player_numbers = new Dictionary<NetworkInstanceId, int>();
+	void Awake () {
+		player_numbers = new Dictionary<NetworkInstanceId, int> ();
+		Debug.Log ("PlayerNumberManager initialized.");
 	}
 
 	public int GetPlayerNumber (NetworkInstanceId player) {
-		if( player_numbers.ContainsKey( player ) )
+		if (player_numbers.ContainsKey(player))
 		{
 			return player_numbers[player];
 		}
-		player_numbers.Add( player, player_numbers.Count + 1 );
+		player_numbers.Add (player, player_numbers.Count + 1);
 		return player_numbers[player];
 	}
 }
