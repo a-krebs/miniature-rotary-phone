@@ -2,6 +2,11 @@
 using UnityEngine.Networking;
 using System.Collections;
 
+/// Gets a number for the player.
+///
+/// Requires a PlayerNumberManager to be available on the server.
+/// Must be attached to the local player object.
+/// Use static method `GetLocalPlayerNumber()` to get local player number.
 public class PlayerNumber : NetworkBehaviour {
 
 	// player number (player 1, player 2, etc.)

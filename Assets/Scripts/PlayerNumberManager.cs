@@ -13,6 +13,7 @@ public class PlayerNumberManager : MonoBehaviour {
 		Debug.Log ("PlayerNumberManager initialized.");
 	}
 
+	/// Make sure you always provide the NetworkInstanceId of the same Object!
 	public int GetPlayerNumber (NetworkInstanceId player) {
 		if (player_numbers.ContainsKey(player))
 		{
