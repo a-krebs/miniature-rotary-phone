@@ -20,13 +20,13 @@ public class CharacterSprite : NetworkBehaviour {
 	}
 
 	void Update() {
-		if( !isServer && !isLocalPlayer && IsPlayerOne() ) {
+		if( !isLocalPlayer && IsPlayerOne() ) {
 			rend.sprite = monsterOne;
-		} else if ( !isServer && !isLocalPlayer && IsPlayerTwo() ) {
+		} else if ( !isLocalPlayer && IsPlayerTwo() ) {
 			rend.sprite = monsterTwo;
-		} else if ( (isServer || isLocalPlayer) && IsPlayerOne() ) {
+		} else if ( isLocalPlayer && IsPlayerOne() ) {
 			rend.sprite = sprOne;
-		} else if ( (isServer || isLocalPlayer) && IsPlayerTwo()) {
+		} else if ( isLocalPlayer && IsPlayerTwo()) {
 			rend.sprite = sprTwo;
 		} else {
 			rend.sprite = placeholder;
