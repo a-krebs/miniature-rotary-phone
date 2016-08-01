@@ -19,6 +19,12 @@ public class ObjectSprite : NetworkBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (isServer && !isClient)
+		{
+			// One of the clients might be a server too.
+			// If dedicated server, use placeholder.
+			return;
+		}
 		if (playerNum == null)
 		{
 			playerNum = PlayerNumber.GetLocalPlayerNumber();
