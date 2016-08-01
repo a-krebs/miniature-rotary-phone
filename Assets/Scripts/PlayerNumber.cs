@@ -62,16 +62,20 @@ public class PlayerNumber : NetworkBehaviour {
 
 	[Client]
 	public static PlayerNumber GetLocalPlayerNumber() {
-		GameObject player = GameObject.FindWithTag ("LocalPlayer");
-		if (player == null) {
-			throw new System.MemberAccessException ("Local player not found.");
-		}
-	
-		PlayerNumber num = player.GetComponent<PlayerNumber>();
+		PlayerNumber num = GetLocalPlayerGameObject().GetComponent<PlayerNumber>();
 		if (num == null) {
 			throw new System.MemberAccessException ("Local player found, but has no PlayerNumber Component.");
 		}
 
 		return num;
+	}
+
+	[Client]
+	public static GameObject GetLocalPlayerGameObject() {
+		GameObject player = GameObject.FindWithTag ("LocalPlayer");
+		if (player == null) {
+			throw new System.MemberAccessException ("Local player not found.");
+		}
+		return player;
 	}
 }
