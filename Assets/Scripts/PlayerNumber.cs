@@ -6,7 +6,9 @@ using System.Collections;
 ///
 /// Requires a PlayerNumberManager to be available on the server.
 /// Must be attached to the local player object.
+///
 /// Use static method `GetLocalPlayerNumber()` to get local player number.
+/// Use static method `GetLocalPlayerGameObject()` to get the local player's GameObject.
 public class PlayerNumber : NetworkBehaviour {
 
 	// player number (player 1, player 2, etc.)
