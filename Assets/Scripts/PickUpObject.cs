@@ -12,6 +12,9 @@ using UnityEngine.Networking;
 /// collider, Client Authority is removed again.
 public class PickUpObject : NetworkBehaviour {
 
+	public enum Size { Small, Medium, Large };
+	public Size size;
+
 	const float defaultSearchRadius = 5.5f;
 	// only used on server
 	GameObject currentObject = null;
@@ -128,10 +131,10 @@ public class PickUpObject : NetworkBehaviour {
 			if (collider.gameObject.tag != "ObjectSlot") {
 				continue;
 			}
-			// TODO test this
-			//if (collider.gameObject.GetComponent<SlotSize>().size != size) {
-			//	continue;
-			//}
+			SlotSize slotSize = collider.gameObject.GetComponent<SlotSize>();
+			if (slotSize == null || slotSize.size != size) {
+				continue;
+			}
 			if (closest == null) {
 				closest = collider;
 				closestDist = Vector2.Distance (transform.position, collider.transform.position);
