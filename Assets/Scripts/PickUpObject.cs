@@ -12,13 +12,18 @@ using UnityEngine.Networking;
 /// collider, Client Authority is removed again.
 public class PickUpObject : NetworkBehaviour {
 
-	//const float defaultSearchRadius = 0.75f;
-	const float defaultSearchRadius = Mathf.Infinity;
+	const float defaultSearchRadius = 5.5f;
 	// only used on server
 	GameObject currentObject = null;
 
 	[SyncVar]
 	bool beingCarried = false;
+
+	// draws wire mesh to visualize slot search radius
+	void OnDrawGizmosSelected() {
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere (new Vector3 ( transform.position.x, transform.position.y, 0 ), defaultSearchRadius);
+	}
 
 	void OnTriggerEnter2D (Collider2D other) {
 		if (!isServer) {
