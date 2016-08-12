@@ -12,6 +12,8 @@ using UnityEngine.Networking;
 /// collider, Client Authority is removed again.
 public class PickUpObject : NetworkBehaviour {
 
+	//const float defaultSearchRadius = 0.75f;
+	const float defaultSearchRadius = Mathf.Infinity;
 	// only used on server
 	GameObject currentObject = null;
 
@@ -65,8 +67,16 @@ public class PickUpObject : NetworkBehaviour {
 			if (Input.GetMouseButtonDown(0))
 			{
 				// local version of the object is authoritative,
-				// so remove the local transform
+				// so remove the local transform and set position
 				transform.parent = null;
+				GameObject slot = GetClosestEmptySlot (defaultSearchRadius);
+				if (slot != null) {
+					Debug.Log ("Updating slot position.");
+					transform.position = slot.transform.position;
+				} else {
+					Debug.Log ("No slot within range.");
+					// TODO error? drop?
+				}
 				CmdPutDown();
 			}
 		}
@@ -100,5 +110,38 @@ public class PickUpObject : NetworkBehaviour {
 			throw new System.MemberAccessException ("Invalid state. Cannot put down.");
 		}
 		beingCarried = false;
+	}
+
+	/// Returns null if no game object in radius
+	private GameObject GetClosestEmptySlot (float radius) {
+		Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, radius);
+		Collider2D closest = null;
+		float closestDist = 0;
+		Debug.Log ("Colliders in range: " + hitColliders.Length);
+		foreach (Collider2D collider in hitColliders) {
+			Debug.Log ("Inspecting Collider: " + collider.gameObject.name);
+			if (collider.gameObject.tag != "ObjectSlot") {
+				continue;
+			}
+			// TODO test this
+			//if (collider.gameObject.GetComponent<SlotSize>().size != size) {
+			//	continue;
+			//}
+			if (closest == null) {
+				closest = collider;
+				closestDist = Vector2.Distance (transform.position, collider.transform.position);
+				continue;
+			}
+			float distance = Vector2.Distance (transform.position, collider.transform.position);
+			if (distance < closestDist) {
+				closestDist = distance;
+				closest = collider;
+			}
+		}
+		if (closest != null) {
+			return closest.gameObject;
+		} else {
+			return null;
+		}
 	}
 }
