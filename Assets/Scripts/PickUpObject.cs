@@ -12,6 +12,12 @@ using UnityEngine.Networking;
 /// collider, Client Authority is removed again.
 public class PickUpObject : NetworkBehaviour {
 
+	public delegate void Placed(GameObject obj, GameObject slot);
+	public delegate void PickedUp(GameObject obj, GameObject slot);
+
+	public static event Placed OnPlaced;
+	public static event PickedUp OnPickedUp;
+
 	public enum Size { Small, Medium, Large };
 	public Size size;
 	public bool selected = true;
@@ -89,6 +95,8 @@ public class PickUpObject : NetworkBehaviour {
 					transform.position = slot.transform.position;
 					CmdPutDown();
 					beingCarried = false;
+
+					OnPlaced (this.gameObject, slot);
 				} else {
 					Debug.Log ("No slot within range.");
 					// TODO error? drop?
@@ -112,6 +120,9 @@ public class PickUpObject : NetworkBehaviour {
 				Transform localPlayer = PlayerNumber.GetLocalPlayerGameObject().transform;
 				transform.position = localPlayer.position;
 				transform.parent = localPlayer;
+
+				// TODO what slot did we pick up from?
+				OnPickedUp (this.gameObject, null);
 			}
 		}
 	}

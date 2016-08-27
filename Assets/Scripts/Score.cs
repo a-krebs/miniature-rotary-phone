@@ -5,27 +5,41 @@ using UnityEngine.Networking;
 
 public class Score : NetworkBehaviour {
 
-	public int score;                           
+	[SyncVar]
+	public int score;
+
 	public Slider scoreSlider;                                 
-
-
 
 	void Awake ()
 	{
 		score = 0;
 	}
 
-
-	public void ChangeScore (int amount)
+	public override void OnStartServer()
 	{
-
-
-		score += amount;
-
-
-		scoreSlider.value = score;
-
-
+		PickUpObject.OnPlaced += PickUpObjectPlaced;
+		PickUpObject.OnPickedUp += PickUpObjectPickedUp;
 	}
-		     
+
+	void Update()
+	{
+		Debug.Log ("Score: " + score);
+		scoreSlider.value = score;
+	}
+
+	private void PickUpObjectPlaced( GameObject obj, GameObject slot)
+	{
+		Debug.Log ("Object placed down!");
+		score += 50;
+	}
+
+	private void PickUpObjectPickedUp( GameObject obj, GameObject slot)
+	{
+		if (slot == null)
+		{
+			return;
+		}
+		Debug.Log ("Object picked up!");
+		score -= 50;
+	}
 }
