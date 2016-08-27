@@ -9,6 +9,7 @@ TagManager:
   - ObjectSlot
   - Cursor
   - Object
+  - ScoreManager
   layers:
   - Default
   - TransparentFX
