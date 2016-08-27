@@ -29,17 +29,19 @@ public class SelectPickUpObject : MonoBehaviour {
 
 	void Update() {
 		if (availableObjects.Count == 0) {
-			UpdateSelected (null);
-			HideCursor();
+			if (UpdateSelected (null))
+			{
+				HideCursor();
+			}
 			return;
 		}
 
 		if (selected == null || !availableObjects.Contains(selected)) {
-			HideCursor();
 			if (!UpdateSelected (null))
 			{
 				return;
 			}
+			HideCursor();
 		}
 
 		if (selected == null) {
@@ -47,6 +49,8 @@ public class SelectPickUpObject : MonoBehaviour {
 			{
 				return;
 			}
+			// TODO remove for prod to hide cursor until selection changes
+			ShowCursor (selected.transform);
 		}
 
 		if (Input.GetKeyDown (KeyCode.E)) {
@@ -59,16 +63,18 @@ public class SelectPickUpObject : MonoBehaviour {
 			{
 				return;
 			}
-			ShowCursor (selected.transform.position);
+			ShowCursor (selected.transform);
 		}
 	}
 
 	private void HideCursor() {
+		cursor.transform.parent = null;
 		cursor.GetComponent<Cursor>().Hide();
 	}
 
-	private void ShowCursor( Vector2 position ) {
-		cursor.transform.position = position;
+	private void ShowCursor( Transform parent ) {
+		cursor.transform.position = parent.position;
+		cursor.transform.parent = parent;
 		cursor.GetComponent<Cursor>().Show();
 	}
 
