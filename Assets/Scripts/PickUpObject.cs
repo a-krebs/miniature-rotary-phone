@@ -16,11 +16,14 @@ public class PickUpObject : NetworkBehaviour {
 	public Size size;
 
 	const float defaultSearchRadius = 5.5f;
+
 	// only used on server
 	GameObject currentObject = null;
 
 	[SyncVar]
 	bool beingCarried = false;
+
+	bool selected = true;
 
 	// draws wire mesh to visualize slot search radius
 	void OnDrawGizmosSelected() {
@@ -47,8 +50,7 @@ public class PickUpObject : NetworkBehaviour {
 		GetComponent<NetworkIdentity>().AssignClientAuthority( currentObject.GetComponent<NetworkIdentity>().connectionToClient );
 	}
 	
-	void OnTriggerExit2D(Collider2D other)
-	{
+	void OnTriggerExit2D(Collider2D other) {
 		if (!isServer)
 		{
 			Debug.Log ("Not server. Ignoring collision.");
@@ -74,18 +76,19 @@ public class PickUpObject : NetworkBehaviour {
 		{
 			if (Input.GetMouseButtonDown(0))
 			{
-				// local version of the object is authoritative,
-				// so remove the local transform and set position
-				transform.parent = null;
 				GameObject slot = GetClosestEmptySlot (defaultSearchRadius);
 				if (slot != null) {
 					Debug.Log ("Updating slot position.");
+					// local version of the object is authoritative,
+					// so remove the local transform and set position
+					transform.parent = null;
 					transform.position = slot.transform.position;
+					CmdPutDown();
 				} else {
 					Debug.Log ("No slot within range.");
 					// TODO error? drop?
+					return;
 				}
-				CmdPutDown();
 			}
 		}
 		else
@@ -95,7 +98,9 @@ public class PickUpObject : NetworkBehaviour {
 				CmdPickUp();
 				// local version of the object is authoritative,
 				// so use local transform
-				transform.parent = PlayerNumber.GetLocalPlayerGameObject().transform;
+				Transform localPlayer = PlayerNumber.GetLocalPlayerGameObject().transform;
+				transform.position = localPlayer.position;
+				transform.parent = localPlayer;
 			}
 		}
 	}
