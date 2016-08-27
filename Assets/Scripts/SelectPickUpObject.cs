@@ -11,7 +11,7 @@ public class SelectPickUpObject : MonoBehaviour {
 
 	void Awake() {
 		availableObjects = new List<GameObject>();
-		selected = null;
+		UpdateSelected (null);
 		cursor = GameObject.FindWithTag ("Cursor");
 	}
 
@@ -28,33 +28,37 @@ public class SelectPickUpObject : MonoBehaviour {
 	}	
 
 	void Update() {
-		//availableObjects.Sort();
-
 		if (availableObjects.Count == 0) {
-			selected = null;
+			UpdateSelected (null);
 			HideCursor();
 			return;
 		}
 
 		if (selected == null || !availableObjects.Contains(selected)) {
-			selected = null;
 			HideCursor();
-		}
-
-		if (Input.GetKeyDown (KeyCode.E)) {
-			if (selected == null) {
-				selected = availableObjects[0];
-			} else {
-				int next = availableObjects.IndexOf (selected) + 1;
-				if( next == availableObjects.Count )
-				{
-					next = 0;
-				}
-				selected = availableObjects[next];
+			if (!UpdateSelected (null))
+			{
+				return;
 			}
 		}
 
-		if (selected != null) {
+		if (selected == null) {
+			if (!UpdateSelected (availableObjects[0]))
+			{
+				return;
+			}
+		}
+
+		if (Input.GetKeyDown (KeyCode.E)) {
+			int next = availableObjects.IndexOf (selected) + 1;
+			if( next == availableObjects.Count )
+			{
+				next = 0;
+			}
+			if (!UpdateSelected (availableObjects[next]))
+			{
+				return;
+			}
 			ShowCursor (selected.transform.position);
 		}
 	}
@@ -66,5 +70,23 @@ public class SelectPickUpObject : MonoBehaviour {
 	private void ShowCursor( Vector2 position ) {
 		cursor.transform.position = position;
 		cursor.GetComponent<Cursor>().Show();
+	}
+
+	private bool UpdateSelected (GameObject newSelected ) {
+		if (selected != null)
+		{
+			PickUpObject puo = selected.GetComponent<PickUpObject>();
+			if (puo.beingCarried)
+			{
+				return false;
+			}
+			puo.selected = false;
+		}
+		selected = newSelected;
+		if (selected != null)
+		{
+			selected.GetComponent<PickUpObject>().selected = true;
+		}
+		return true;
 	}
 }

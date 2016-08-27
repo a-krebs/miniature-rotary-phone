@@ -14,6 +14,7 @@ public class PickUpObject : NetworkBehaviour {
 
 	public enum Size { Small, Medium, Large };
 	public Size size;
+	public bool selected = true;
 
 	const float defaultSearchRadius = 5.5f;
 
@@ -21,9 +22,7 @@ public class PickUpObject : NetworkBehaviour {
 	GameObject currentObject = null;
 
 	[SyncVar]
-	bool beingCarried = false;
-
-	bool selected = true;
+	public bool beingCarried = false;
 
 	// draws wire mesh to visualize slot search radius
 	void OnDrawGizmosSelected() {
@@ -76,6 +75,11 @@ public class PickUpObject : NetworkBehaviour {
 		{
 			if (Input.GetMouseButtonDown(0))
 			{
+				if (!selected)
+				{
+					return;
+				}
+
 				GameObject slot = GetClosestEmptySlot (defaultSearchRadius);
 				if (slot != null) {
 					Debug.Log ("Updating slot position.");
@@ -95,6 +99,11 @@ public class PickUpObject : NetworkBehaviour {
 		{
 			if(Input.GetMouseButtonDown(0))
 			{
+				if (!selected)
+				{
+					return;
+				}
+
 				CmdPickUp();
 				// local version of the object is authoritative,
 				// so use local transform
