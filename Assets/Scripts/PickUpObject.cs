@@ -88,6 +88,7 @@ public class PickUpObject : NetworkBehaviour {
 					transform.parent = null;
 					transform.position = slot.transform.position;
 					CmdPutDown();
+					beingCarried = false;
 				} else {
 					Debug.Log ("No slot within range.");
 					// TODO error? drop?
@@ -105,6 +106,7 @@ public class PickUpObject : NetworkBehaviour {
 				}
 
 				CmdPickUp();
+				beingCarried = true;
 				// local version of the object is authoritative,
 				// so use local transform
 				Transform localPlayer = PlayerNumber.GetLocalPlayerGameObject().transform;
@@ -121,7 +123,6 @@ public class PickUpObject : NetworkBehaviour {
 		if (currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot pick up.");
 		}
-		beingCarried = true;
 	}
 
 	[Command]
@@ -131,7 +132,6 @@ public class PickUpObject : NetworkBehaviour {
 		if (!beingCarried || currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot put down.");
 		}
-		beingCarried = false;
 	}
 
 	/// Returns null if no game object in radius
