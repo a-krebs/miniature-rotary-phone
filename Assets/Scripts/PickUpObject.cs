@@ -14,16 +14,15 @@ public class PickUpObject : NetworkBehaviour {
 
 	public enum Size { Small, Medium, Large };
 	public Size size;
+	public bool selected = true;
 
 	const float defaultSearchRadius = 5.5f;
 
 	// only used on server
-	GameObject currentObject = null;
+	GameObject currentOwner = null;
 
 	[SyncVar]
-	bool beingCarried = false;
-
-	bool selected = true;
+	public bool beingCarried = false;
 
 	// draws wire mesh to visualize slot search radius
 	void OnDrawGizmosSelected() {
@@ -35,7 +34,7 @@ public class PickUpObject : NetworkBehaviour {
 		if (!isServer) {
 			return;
 		}
-		if (beingCarried || currentObject != null) {
+		if (beingCarried || currentOwner != null) {
 			Debug.Log ("Object already being carried. Ignoring collision.");
 			return;
 		}
@@ -46,8 +45,8 @@ public class PickUpObject : NetworkBehaviour {
 			return;
 		}
 
-		currentObject = gameObject;
-		GetComponent<NetworkIdentity>().AssignClientAuthority( currentObject.GetComponent<NetworkIdentity>().connectionToClient );
+		currentOwner = gameObject;
+		GetComponent<NetworkIdentity>().AssignClientAuthority( currentOwner.GetComponent<NetworkIdentity>().connectionToClient );
 	}
 	
 	void OnTriggerExit2D(Collider2D other) {
@@ -60,10 +59,10 @@ public class PickUpObject : NetworkBehaviour {
 			Debug.Log ("Object already being carried. Ignoring collision.");
 			return;
 		}
-		if (other.gameObject == currentObject) {
+		if (other.gameObject == currentOwner) {
 			Debug.Log ("Player exited object trigger collider.");
-			GetComponent<NetworkIdentity>().RemoveClientAuthority( currentObject.GetComponent<NetworkIdentity>().connectionToClient );
-			currentObject = null;
+			GetComponent<NetworkIdentity>().RemoveClientAuthority( currentOwner.GetComponent<NetworkIdentity>().connectionToClient );
+			currentOwner = null;
 		}
 	}	
 	
@@ -76,6 +75,11 @@ public class PickUpObject : NetworkBehaviour {
 		{
 			if (Input.GetMouseButtonDown(0))
 			{
+				if (!selected)
+				{
+					return;
+				}
+
 				GameObject slot = GetClosestEmptySlot (defaultSearchRadius);
 				if (slot != null) {
 					Debug.Log ("Updating slot position.");
@@ -84,6 +88,7 @@ public class PickUpObject : NetworkBehaviour {
 					transform.parent = null;
 					transform.position = slot.transform.position;
 					CmdPutDown();
+					beingCarried = false;
 				} else {
 					Debug.Log ("No slot within range.");
 					// TODO error? drop?
@@ -95,7 +100,13 @@ public class PickUpObject : NetworkBehaviour {
 		{
 			if(Input.GetMouseButtonDown(0))
 			{
+				if (!selected)
+				{
+					return;
+				}
+
 				CmdPickUp();
+				beingCarried = true;
 				// local version of the object is authoritative,
 				// so use local transform
 				Transform localPlayer = PlayerNumber.GetLocalPlayerGameObject().transform;
@@ -109,20 +120,18 @@ public class PickUpObject : NetworkBehaviour {
 	void CmdPickUp()
 	{
 		Debug.Log ("Picking up.");
-		if (currentObject == null) {
+		if (currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot pick up.");
 		}
-		beingCarried = true;
 	}
 
 	[Command]
 	void CmdPutDown()
 	{
 		Debug.Log ("Putting down.");
-		if (!beingCarried || currentObject == null) {
+		if (!beingCarried || currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot put down.");
 		}
-		beingCarried = false;
 	}
 
 	/// Returns null if no game object in radius
