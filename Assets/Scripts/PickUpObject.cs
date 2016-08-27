@@ -19,7 +19,7 @@ public class PickUpObject : NetworkBehaviour {
 	const float defaultSearchRadius = 5.5f;
 
 	// only used on server
-	GameObject currentObject = null;
+	GameObject currentOwner = null;
 
 	[SyncVar]
 	public bool beingCarried = false;
@@ -34,7 +34,7 @@ public class PickUpObject : NetworkBehaviour {
 		if (!isServer) {
 			return;
 		}
-		if (beingCarried || currentObject != null) {
+		if (beingCarried || currentOwner != null) {
 			Debug.Log ("Object already being carried. Ignoring collision.");
 			return;
 		}
@@ -45,8 +45,8 @@ public class PickUpObject : NetworkBehaviour {
 			return;
 		}
 
-		currentObject = gameObject;
-		GetComponent<NetworkIdentity>().AssignClientAuthority( currentObject.GetComponent<NetworkIdentity>().connectionToClient );
+		currentOwner = gameObject;
+		GetComponent<NetworkIdentity>().AssignClientAuthority( currentOwner.GetComponent<NetworkIdentity>().connectionToClient );
 	}
 	
 	void OnTriggerExit2D(Collider2D other) {
@@ -59,10 +59,10 @@ public class PickUpObject : NetworkBehaviour {
 			Debug.Log ("Object already being carried. Ignoring collision.");
 			return;
 		}
-		if (other.gameObject == currentObject) {
+		if (other.gameObject == currentOwner) {
 			Debug.Log ("Player exited object trigger collider.");
-			GetComponent<NetworkIdentity>().RemoveClientAuthority( currentObject.GetComponent<NetworkIdentity>().connectionToClient );
-			currentObject = null;
+			GetComponent<NetworkIdentity>().RemoveClientAuthority( currentOwner.GetComponent<NetworkIdentity>().connectionToClient );
+			currentOwner = null;
 		}
 	}	
 	
@@ -118,7 +118,7 @@ public class PickUpObject : NetworkBehaviour {
 	void CmdPickUp()
 	{
 		Debug.Log ("Picking up.");
-		if (currentObject == null) {
+		if (currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot pick up.");
 		}
 		beingCarried = true;
@@ -128,7 +128,7 @@ public class PickUpObject : NetworkBehaviour {
 	void CmdPutDown()
 	{
 		Debug.Log ("Putting down.");
-		if (!beingCarried || currentObject == null) {
+		if (!beingCarried || currentOwner == null) {
 			throw new System.MemberAccessException ("Invalid state. Cannot put down.");
 		}
 		beingCarried = false;
