@@ -20,7 +20,7 @@ public class PickUpObject : NetworkBehaviour {
 
 	public enum Size { Small, Medium, Large };
 	public Size size;
-	public bool selected = true;
+	public bool selected = false;
 
 	const float defaultSearchRadius = 5.5f;
 
