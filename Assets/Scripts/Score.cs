@@ -23,7 +23,6 @@ public class Score : NetworkBehaviour {
 
 	void Update()
 	{
-		Debug.Log ("Score: " + score);
 		scoreSlider.value = score;
 	}
 
