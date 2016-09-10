@@ -91,8 +91,8 @@ public class PickUpObject : NetworkBehaviour {
 					Debug.Log ("Updating slot position.");
 					// local version of the object is authoritative,
 					// so remove the local transform and set position
-					transform.parent = null;
 					transform.position = slot.transform.position;
+					transform.parent = slot.transform;
 					CmdPutDown();
 					beingCarried = false;
 
@@ -156,8 +156,11 @@ public class PickUpObject : NetworkBehaviour {
 			if (collider.gameObject.tag != "ObjectSlot") {
 				continue;
 			}
-			SlotSize slotSize = collider.gameObject.GetComponent<SlotSize>();
-			if (slotSize == null || slotSize.size != size) {
+			Slot slot = collider.gameObject.GetComponent<Slot>();
+			if (slot == null || slot.size != size) {
+				continue;
+			}
+			if (slot.gameObject.transform.childCount != 0) {
 				continue;
 			}
 			if (closest == null) {
