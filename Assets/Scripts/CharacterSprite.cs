@@ -4,30 +4,36 @@ using System.Collections;
 
 public class CharacterSprite : NetworkBehaviour {
 
-	public Sprite sprOne;
-	public Sprite sprTwo;
-	public Sprite monsterOne;
-	public Sprite monsterTwo;
+	public Sprite sprGal;
+	public Sprite sprDude;
+	public Sprite sprTeeth;
+	public Sprite sprBurb;
 	public Sprite placeholder;
 
 	private SpriteRenderer rend;
 	private PlayerNumber playerNum;
+	private Animator animator;
 
 	// Use this for initialization
 	void Start () {
 		rend = GetComponent<SpriteRenderer>();
 		playerNum = GetComponent<PlayerNumber>();
+		animator = GetComponent<Animator>();
 	}
 
 	void Update() {
 		if( !isLocalPlayer && IsPlayerOne() ) {
-			rend.sprite = monsterOne;
+			rend.sprite = sprBurb;
+			animator.runtimeAnimatorController = Resources.Load("Animation/burb") as RuntimeAnimatorController;
 		} else if ( !isLocalPlayer && IsPlayerTwo() ) {
-			rend.sprite = monsterTwo;
+			rend.sprite = sprTeeth;
+			animator.runtimeAnimatorController = Resources.Load("Animation/teethlegs") as RuntimeAnimatorController;
 		} else if ( isLocalPlayer && IsPlayerOne() ) {
-			rend.sprite = sprOne;
+			rend.sprite = sprGal;
+			animator.runtimeAnimatorController = Resources.Load("Animation/gal") as RuntimeAnimatorController;
 		} else if ( isLocalPlayer && IsPlayerTwo()) {
-			rend.sprite = sprTwo;
+			rend.sprite = sprDude;
+			animator.runtimeAnimatorController = Resources.Load("Animation/dude") as RuntimeAnimatorController;
 		} else {
 			rend.sprite = placeholder;
 		}

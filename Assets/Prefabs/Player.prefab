@@ -8,7 +8,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 441976}
-  - 212: {fileID: 21219378}
   - 50: {fileID: 5082958}
   - 61: {fileID: 6147006}
   - 114: {fileID: 11482588}
@@ -17,6 +16,8 @@ GameObject:
   - 114: {fileID: 11458080}
   - 114: {fileID: 11452548}
   - 114: {fileID: 11422352}
+  - 95: {fileID: 9529396}
+  - 212: {fileID: 21283772}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -68,6 +69,23 @@ BoxCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Size: {x: 19.67, y: 56.96}
+--- !u!95 &9529396
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 146312}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!114 &11422352
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -90,10 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8abc988f3189c4e5ea31921ac522cd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprOne: {fileID: 21300000, guid: 3010ee7539c3b42f2993e3992194371f, type: 3}
-  sprTwo: {fileID: 21300000, guid: 536651e8505884bac8209c7dc3eff6c4, type: 3}
-  monsterOne: {fileID: 21300000, guid: 041969275d9fd427daab10491bfbbab4, type: 3}
-  monsterTwo: {fileID: 21300000, guid: 1f074275355794f6e880233dd68daa3f, type: 3}
+  sprGal: {fileID: 21300000, guid: 742fb7c77b22347a1be9e82690c91745, type: 3}
+  sprDude: {fileID: 21300000, guid: 5b7cf6a0210aa466a843339b9681d6e2, type: 3}
+  sprTeeth: {fileID: 21300000, guid: 4c94c37fa2f604decb7387661a13cafe, type: 3}
+  sprBurb: {fileID: 21300000, guid: 6ecfb882113b444bc9c821017a72f744, type: 3}
   placeholder: {fileID: 21300000, guid: deddef3b0e44345aa9ee279c1b319539, type: 3}
 --- !u!114 &11452548
 MonoBehaviour:
@@ -170,7 +188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 6
---- !u!212 &21219378
+--- !u!212 &21283772
 SpriteRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}

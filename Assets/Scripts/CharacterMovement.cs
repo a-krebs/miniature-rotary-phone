@@ -15,13 +15,13 @@ public class CharacterMovement : NetworkBehaviour
 
 	// Speed modifier for player movement
 	public float speed = 4.0f;
-
+	private Animator anim;
 	//Initialize any component references
 	void Awake()
 	{
-		
 		playerRigidBody2D = (Rigidbody2D)GetComponent(typeof(Rigidbody2D));
-	
+		anim = GetComponent<Animator> ();
+		anim.speed = 0.5f;
 	}
 
 	public override void OnStartLocalPlayer (){
@@ -48,6 +48,8 @@ public class CharacterMovement : NetworkBehaviour
 		movePlayerVector = Input.GetAxis("Horizontal");
 
 		playerRigidBody2D.velocity = new Vector2(movePlayerVector * speed, playerRigidBody2D.velocity.y);
+
+		anim.SetFloat("speed", Mathf.Abs(movePlayerVector));
 
 		if (movePlayerVector > 0 && !facingRight)
 		{
