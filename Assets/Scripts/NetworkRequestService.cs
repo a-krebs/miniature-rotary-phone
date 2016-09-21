@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using NetworkRequest;
 
-public class ClientAuthorityService : NetworkBehaviour
+public class NetworkRequestService : NetworkBehaviour
 {
 	private NetworkClient m_client;
 	private uint m_nextRequestId = 0;
@@ -18,14 +18,14 @@ public class ClientAuthorityService : NetworkBehaviour
 
 	public override void OnStartServer()
 	{
-		Debug.Log("ClientAuthorityService OnStartServer");
+		Debug.Log("NetworkRequestService OnStartServer");
 		NetworkServer.RegisterHandler(RequestAuthMessage.Type, OnRequestAuth);
 		NetworkServer.RegisterHandler(ReleaseAuthMessage.Type, OnReleaseAuth);
 	}
 
 	public override void OnStartClient()
 	{
-		Debug.Log("ClientAuthorityService OnStartClient");
+		Debug.Log("NetworkRequestService OnStartClient");
 		Debug.Log("NetworkClient.allClients.Count: " + NetworkClient.allClients.Count);
 		// client count must be 1, we're relying on it being the only connection to the server
 		if(NetworkClient.allClients.Count != 1)
@@ -155,13 +155,13 @@ public class ClientAuthorityService : NetworkBehaviour
 		return next;
 	}
 
-	public static ClientAuthorityService Instance()
+	public static NetworkRequestService Instance()
 	{
-		GameObject obj = GameObject.FindWithTag("ClientAuthorityService");
+		GameObject obj = GameObject.FindWithTag("NetworkRequestService");
 		if( obj == null ) {
-			Debug.Log ("Failed to get ClientAuthorityService.");
+			Debug.Log ("Failed to get NetworkRequestService.");
 			throw new System.MemberAccessException();
 		}
-		return obj.GetComponent<ClientAuthorityService>();
+		return obj.GetComponent<NetworkRequestService>();
 	}
 }

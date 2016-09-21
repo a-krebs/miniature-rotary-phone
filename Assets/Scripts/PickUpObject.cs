@@ -44,7 +44,7 @@ public class PickUpObject : NetworkBehaviour
 			};
 
 		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		ClientAuthorityService.Instance().RequestAuth( player, netId, internalHandler );
+		NetworkRequestService.Instance().RequestAuth( player, netId, internalHandler );
 
 		beingCarried = true;
 		transform.position = parent.position;
@@ -72,7 +72,7 @@ public class PickUpObject : NetworkBehaviour
 		}
 
 		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		ClientAuthorityService.Instance().ReleaseAuth( player, netId );
+		NetworkRequestService.Instance().ReleaseAuth( player, netId );
 
 		//OnPlaced (this.gameObject, null);
 	}
