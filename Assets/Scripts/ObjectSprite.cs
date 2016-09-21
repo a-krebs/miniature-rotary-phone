@@ -14,7 +14,12 @@ public class ObjectSprite : NetworkBehaviour {
 	// Use this for initialization
 	void Start () {
 		rend = GetComponent<SpriteRenderer>();
-		playerNum = PlayerNumber.GetLocalPlayerNumber();
+		try
+		{
+			playerNum = PlayerNumber.GetLocalPlayerNumber();
+		} catch {
+			playerNum = null;
+		}
 	}
 	
 	// Update is called once per frame
@@ -27,7 +32,12 @@ public class ObjectSprite : NetworkBehaviour {
 		}
 		if (playerNum == null)
 		{
-			playerNum = PlayerNumber.GetLocalPlayerNumber();
+			try
+			{
+				playerNum = PlayerNumber.GetLocalPlayerNumber();
+			} catch {
+				playerNum = null;
+			}
 			return;
 		}
 		if (playerNum.IsPlayerOne()) {
