@@ -95,7 +95,6 @@ public class NetworkRequestService : NetworkBehaviour
 		GameObject playerInstance = NetworkServer.FindLocalObject(player);
 		GameObject objInstance = NetworkServer.FindLocalObject(obj);
 
-		// TODO check docs if this throws or returns null
 		PickUpObject puo = objInstance.GetComponent<PickUpObject>();
 
 		bool allow = true;
@@ -140,41 +139,40 @@ public class NetworkRequestService : NetworkBehaviour
 
 		GameObject playerInstance = NetworkServer.FindLocalObject(player);
 		GameObject objInstance = NetworkServer.FindLocalObject(obj);
-		GameObject containerInstance = null; // fetched below
+		IContainer containerInstance = null; // fetched below
 
-		// TODO check docs if this throws or returns null
 		PickUpObject puo = objInstance.GetComponent<PickUpObject>();
 
 		bool allow = true;
 		allow &= playerInstance != null;
 		allow &= objInstance != null;
-		if (!puo.beingCarried)
+		allow &= puo != null;
+
+		if (allow && !puo.beingCarried)
 		{
 			// TODO make sure the requesting player is carrying the object
 			Debug.Log("PutDown Failed: object not being carried?");
 			allow = false;
 		}
 
-		if (container.Value != 0)
+		if (allow && container.Value != 0)
 		{
-			containerInstance = NetworkServer.FindLocalObject(container);
-			allow &= containerInstance != null;
+			GameObject containerGameObj = NetworkServer.FindLocalObject(container);
 
-			IContainer icont = null;
-			if (containerInstance.tag == "BoxContainer")
+			if (containerGameObj.tag == "BoxContainer")
 			{
-				BoxContainer box = containerInstance.GetComponent<BoxContainer>();
-				icont = box;
-			} else if (containerInstance.tag == "ObjectSlot") {
-				Slot slot = containerInstance.GetComponent<Slot>();
-				icont = slot;
+				BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
+				containerInstance = box;
+			} else if (containerGameObj.tag == "ObjectSlot") {
+				Slot slot = containerGameObj.GetComponent<Slot>();
+				containerInstance = slot;
 			}
 
-			if (icont == null)
+			if (containerInstance == null)
 			{
 				Debug.Log("PutDown Failed: couldn't get IContainer.");
 				allow = false;
-			} else if(icont.Count >= icont.Capacity) {
+			} else if(containerInstance.Count >= containerInstance.Capacity) {
 				Debug.Log("PutDown Failed: container capacity exceeded.");
 				allow = false;
 			}
@@ -185,8 +183,7 @@ public class NetworkRequestService : NetworkBehaviour
 			puo.beingCarried = false;
 			if (containerInstance != null)
 			{
-				objInstance.transform.position = containerInstance.transform.position;
-				objInstance.transform.parent = containerInstance.transform;
+				containerInstance.Put(puo);
 			} else {
 				// TODO drop on ground
 				objInstance.transform.position = playerInstance.transform.position;
