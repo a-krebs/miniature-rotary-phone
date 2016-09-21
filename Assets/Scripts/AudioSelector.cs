@@ -11,13 +11,23 @@ public class AudioSelector : MonoBehaviour {
 
 	void Start () {
 		source = GetComponent<AudioSource>();
-		playerNum = PlayerNumber.GetLocalPlayerNumber();
+		try
+		{
+			playerNum = PlayerNumber.GetLocalPlayerNumber();
+		} catch {
+			playerNum = null;
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if( playerNum == null ) {
-			playerNum = PlayerNumber.GetLocalPlayerNumber();
+			try
+			{
+				playerNum = PlayerNumber.GetLocalPlayerNumber();
+			} catch {
+				playerNum = null;
+			}
 			return;
 		}
 		if( source.isPlaying ) {
