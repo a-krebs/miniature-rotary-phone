@@ -3,7 +3,7 @@ using UnityEngine.Networking;
 using System.Collections;
 
 /// An IContainer that can hold an unlimited number of PickUpObjects.
-public class Box : NetworkBehaviour, IContainer
+public class BoxContainer : NetworkBehaviour, IContainer
 {
 	public int Count
 	{

@@ -10,7 +10,8 @@ TagManager:
   - Cursor
   - Object
   - ScoreManager
-  - ClientAuthorityService
+  - NetworkRequestService
+  - BoxContainer
   layers:
   - Default
   - TransparentFX

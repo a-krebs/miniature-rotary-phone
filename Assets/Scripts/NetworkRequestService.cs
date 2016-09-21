@@ -19,8 +19,8 @@ public class NetworkRequestService : NetworkBehaviour
 	public override void OnStartServer()
 	{
 		Debug.Log("NetworkRequestService OnStartServer");
-		NetworkServer.RegisterHandler(RequestAuthMessage.Type, OnRequestAuth);
-		NetworkServer.RegisterHandler(ReleaseAuthMessage.Type, OnReleaseAuth);
+		NetworkServer.RegisterHandler(RequestPickUpMsg.Type, OnRequestPickUp);
+		NetworkServer.RegisterHandler(RequestPutDownMsg.Type, OnRequestPutDown);
 	}
 
 	public override void OnStartClient()
@@ -33,20 +33,22 @@ public class NetworkRequestService : NetworkBehaviour
 			throw new System.Exception();
 		}
 		m_client = NetworkClient.allClients[0];
-		m_client.RegisterHandler(GrantAuthMessage.Type, OnGrantAuth);
-		m_client.RegisterHandler(DenyAuthMessage.Type, OnDenyAuth);
+		m_client.RegisterHandler(PickUpSucceededMsg.Type, OnPickUpSucceeded);
+		m_client.RegisterHandler(PickUpFailedMsg.Type, OnPickUpFailed);
+		m_client.RegisterHandler(PutDownSucceededMsg.Type, OnPutDownSucceeded);
+		m_client.RegisterHandler(PutDownFailedMsg.Type, OnPutDownFailed);
 	}
 
 	[Client]
-	public void RequestAuth(NetworkInstanceId player, NetworkInstanceId obj, NetworkRequest.Result handler)
+	public void RequestPickUp(NetworkInstanceId player, NetworkInstanceId obj, NetworkRequest.Result handler)
 	{
 		uint requestId = GetNextRequestId();
 		if (m_requests.ContainsKey(requestId))
 		{
 			throw new System.Exception();
 		}
-		Debug.Log("Requesting client authority for player with netId " + player.Value + " for object with netId " + obj.Value);
-		RequestAuthMessage msg = new RequestAuthMessage();
+		Debug.Log("Requesting PickUp for player with netId " + player.Value + " for object with netId " + obj.Value);
+		RequestPickUpMsg msg = new RequestPickUpMsg();
 		msg.requestId = requestId;
 		msg.playerNetId = player.Value;
 		msg.objNetId = obj.Value;
@@ -54,97 +56,203 @@ public class NetworkRequestService : NetworkBehaviour
 		request.id = requestId;
 		request.OnResult += handler;
 		m_requests.Add(requestId, request);
-		m_client.Send(RequestAuthMessage.Type, msg);
+		m_client.Send(RequestPickUpMsg.Type, msg);
 	}
 
 	[Client]
-	public void ReleaseAuth(NetworkInstanceId player, NetworkInstanceId obj)
+	public void RequestPutDown(NetworkInstanceId player, NetworkInstanceId obj, NetworkInstanceId container, NetworkRequest.Result handler)
 	{
 		uint requestId = GetNextRequestId();
 		if (m_requests.ContainsKey(requestId))
 		{
 			throw new System.Exception();
 		}
-		Debug.Log("Releasing client authority for player with netId " + player.Value + " for object with netId " + obj.Value);
-		ReleaseAuthMessage msg = new ReleaseAuthMessage();
+		Debug.Log("Requesting PutDown for player with netId " + player.Value + " for object with netId " + obj.Value + " into container with netId " + container.Value);
+		RequestPutDownMsg msg = new RequestPutDownMsg();
 		msg.requestId = requestId;
 		msg.playerNetId = player.Value;
 		msg.objNetId = obj.Value;
-		m_client.Send(ReleaseAuthMessage.Type, msg);
+		msg.containerNetId = container.Value;
+		Request request = new Request();
+		request.id = requestId;
+		request.OnResult += handler;
+		m_requests.Add(requestId, request);
+		m_client.Send(RequestPutDownMsg.Type, msg);
 	}
 
 	[Server]
-	void OnRequestAuth(NetworkMessage msg)
+	void OnRequestPickUp(NetworkMessage msg)
 	{
-		RequestAuthMessage request = msg.ReadMessage<RequestAuthMessage>();
+		RequestPickUpMsg request = msg.ReadMessage<RequestPickUpMsg>();
 		NetworkInstanceId player = new NetworkInstanceId(request.playerNetId);
 		NetworkInstanceId obj    = new NetworkInstanceId(request.objNetId);
 
 		PlayerNumberManager manager = PlayerNumberManager.GetServerPlayerNumberManager();
 		NetworkConnection connection = manager.GetPlayerConnection(player);
 
-		Debug.Log("Received RequestAuth message from player with netId " + player.Value + " for object with netId " + obj.Value);
-		GameObject instance = NetworkServer.FindLocalObject(obj);
-		if (instance.GetComponent<NetworkIdentity>().hasAuthority)
-		{
-			instance.GetComponent<NetworkIdentity>().AssignClientAuthority( connection );
+		Debug.Log("Received RequestPickUp message from player with netId " + player.Value + " for object with netId " + obj.Value);
 
-			GrantAuthMessage response = new GrantAuthMessage();
+		GameObject playerInstance = NetworkServer.FindLocalObject(player);
+		GameObject objInstance = NetworkServer.FindLocalObject(obj);
+
+		// TODO check docs if this throws or returns null
+		PickUpObject puo = objInstance.GetComponent<PickUpObject>();
+
+		bool allow = true;
+		allow &= playerInstance != null;
+		allow &= objInstance != null;
+		allow &= (puo != null && !puo.beingCarried);
+
+		if (allow)
+		{
+			puo.beingCarried = true;
+			objInstance.transform.position = playerInstance.transform.position;
+			objInstance.transform.parent = playerInstance.transform;
+
+			PickUpSucceededMsg response = new PickUpSucceededMsg();
 			response.requestId = request.requestId;
 			response.playerNetId = request.playerNetId;
 			response.objNetId = request.objNetId;
-			NetworkServer.SendToClient(connection.connectionId, GrantAuthMessage.Type, response);
-			Debug.Log("Granted client authority to player with netId " + player.Value + " for object with netId " + obj.Value);
+			NetworkServer.SendToClient(connection.connectionId, PickUpSucceededMsg.Type, response);
+			Debug.Log("PickUp Succeeded: player with netId " + player.Value + "picked up object with netId " + obj.Value);
 		} else {
-			DenyAuthMessage response = new DenyAuthMessage();
+			PickUpFailedMsg response = new PickUpFailedMsg();
 			response.requestId = request.requestId;
 			response.playerNetId = request.playerNetId;
 			response.objNetId = request.objNetId;
-			NetworkServer.SendToClient(connection.connectionId, DenyAuthMessage.Type, response);
-			Debug.Log("Denied client authority to player with netId " + player.Value + " for object with netId " + obj.Value);
+			NetworkServer.SendToClient(connection.connectionId, PickUpFailedMsg.Type, response);
+			Debug.Log("PickUp Failed: player with netId " + player.Value + "did not pickup object with netId " + obj.Value);
 		}
 	}
 
 	[Server]
-	void OnReleaseAuth(NetworkMessage msg)
+	void OnRequestPutDown(NetworkMessage msg)
 	{
-		ReleaseAuthMessage request = msg.ReadMessage<ReleaseAuthMessage>();
-		NetworkInstanceId player = new NetworkInstanceId(request.playerNetId);
-		NetworkInstanceId obj    = new NetworkInstanceId(request.objNetId);
+		RequestPutDownMsg request   = msg.ReadMessage<RequestPutDownMsg>();
+		NetworkInstanceId player    = new NetworkInstanceId(request.playerNetId);
+		NetworkInstanceId obj       = new NetworkInstanceId(request.objNetId);
+		NetworkInstanceId container = new NetworkInstanceId(request.containerNetId);
 
 		PlayerNumberManager manager = PlayerNumberManager.GetServerPlayerNumberManager();
 		NetworkConnection connection = manager.GetPlayerConnection(player);
 
-		Debug.Log("Received ReleaseAuth message from player with netId " + player.Value + " for object with netId " + obj.Value);
-		GameObject instance = NetworkServer.FindLocalObject(obj);
-		if(!instance.GetComponent<NetworkIdentity>().RemoveClientAuthority(connection))
+		Debug.Log("Received RequestPutDown message from player with netId " + player.Value + " for object with netId " + obj.Value + " and container netId: " + container.Value);
+
+		GameObject playerInstance = NetworkServer.FindLocalObject(player);
+		GameObject objInstance = NetworkServer.FindLocalObject(obj);
+		GameObject containerInstance = null; // fetched below
+
+		// TODO check docs if this throws or returns null
+		PickUpObject puo = objInstance.GetComponent<PickUpObject>();
+
+		bool allow = true;
+		allow &= playerInstance != null;
+		allow &= objInstance != null;
+		if (!puo.beingCarried)
 		{
-			Debug.Log("Failed to remove client authority from player with netId " + player.Value + " for object with netId " + obj.Value);
+			// TODO make sure the requesting player is carrying the object
+			Debug.Log("PutDown Failed: object not being carried?");
+			allow = false;
+		}
+
+		if (container.Value != 0)
+		{
+			containerInstance = NetworkServer.FindLocalObject(container);
+			allow &= containerInstance != null;
+
+			IContainer icont = null;
+			if (containerInstance.tag == "BoxContainer")
+			{
+				BoxContainer box = containerInstance.GetComponent<BoxContainer>();
+				icont = box;
+			} else if (containerInstance.tag == "ObjectSlot") {
+				Slot slot = containerInstance.GetComponent<Slot>();
+				icont = slot;
+			}
+
+			if (icont == null)
+			{
+				Debug.Log("PutDown Failed: couldn't get IContainer.");
+				allow = false;
+			} else if(icont.Count >= icont.Capacity) {
+				Debug.Log("PutDown Failed: container capacity exceeded.");
+				allow = false;
+			}
+		}
+
+		if (allow)
+		{
+			puo.beingCarried = false;
+			if (containerInstance != null)
+			{
+				objInstance.transform.position = containerInstance.transform.position;
+				objInstance.transform.parent = containerInstance.transform;
+			} else {
+				// TODO drop on ground
+				objInstance.transform.position = playerInstance.transform.position;
+				objInstance.transform.parent = null;
+			}
+
+			PutDownSucceededMsg response = new PutDownSucceededMsg();
+			response.requestId = request.requestId;
+			response.playerNetId = request.playerNetId;
+			response.objNetId = request.objNetId;
+			response.containerNetId = request.containerNetId;
+			NetworkServer.SendToClient(connection.connectionId, PutDownSucceededMsg.Type, response);
+			Debug.Log("PutDown Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+		} else {
+			PutDownFailedMsg response = new PutDownFailedMsg();
+			response.requestId = request.requestId;
+			response.playerNetId = request.playerNetId;
+			response.objNetId = request.objNetId;
+			response.containerNetId = request.containerNetId;
+			NetworkServer.SendToClient(connection.connectionId, PutDownFailedMsg.Type, response);
+			Debug.Log("PutDown Failed: player with netId " + player.Value + " did not pickup object with netId " + obj.Value + " and container netId " + container.Value);
 		}
 	}
 
 	[Client]
-	void OnGrantAuth(NetworkMessage msg)
+	void OnPickUpSucceeded(NetworkMessage msg)
 	{
-		GrantAuthMessage response = msg.ReadMessage<GrantAuthMessage>();
-		Debug.Log("Received GrantAuthMessage for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		PickUpSucceededMsg response = msg.ReadMessage<PickUpSucceededMsg>();
+		Debug.Log("Received PickUpSucceededMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
 		uint requestId = response.requestId;
 		Request request = m_requests[requestId];
 		request.Succeeded();
 		m_requests.Remove(requestId);
-		Debug.Log("Was granted client authority.");
 	}
 
 	[Client]
-	void OnDenyAuth(NetworkMessage msg)
+	void OnPickUpFailed(NetworkMessage msg)
 	{
-		DenyAuthMessage response = msg.ReadMessage<DenyAuthMessage>();
-		Debug.Log("Received DenyAuthMessage for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		PickUpFailedMsg response = msg.ReadMessage<PickUpFailedMsg>();
+		Debug.Log("Received PickUpFailedMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
 		uint requestId = response.requestId;
 		Request request = m_requests[requestId];
 		request.Failed();
 		m_requests.Remove(requestId);
-		Debug.Log("Was denied client authority.");
+	}
+
+	[Client]
+	void OnPutDownSucceeded(NetworkMessage msg)
+	{
+		PutDownSucceededMsg response = msg.ReadMessage<PutDownSucceededMsg>();
+		Debug.Log("Received PutDownSucceededMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Succeeded();
+		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	void OnPutDownFailed(NetworkMessage msg)
+	{
+		PutDownFailedMsg response = msg.ReadMessage<PutDownFailedMsg>();
+		Debug.Log("Received PutDownFailedMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Failed();
+		m_requests.Remove(requestId);
 	}
 
 	[Client]

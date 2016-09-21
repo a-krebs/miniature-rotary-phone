@@ -91,7 +91,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 				PickUpObject puo = selected.GetComponent<PickUpObject>();
 				carried = selected;
 				selected = null;
-				puo.PickUp(transform, GetPickUpHandler());
+				puo.PickUp(GetPickUpHandler());
 				Debug.Log("Picked up object.");
 			}
 		} else if (Input.GetMouseButtonDown(0)) {
@@ -103,8 +103,9 @@ public class SelectPickUpObject : NetworkBehaviour {
 				//carried = null;
 				//puo.PutDown(null);
 			} else {
+				GameObject carrying = this.carried;
 				carried = null;
-				puo.PutDown(slot.transform);
+				puo.PutDown(slot, GetPutDownHandler(carrying));
 			}
 		}
 	}
@@ -118,6 +119,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 
 				Debug.Log("SelectPickUpObject failure handler.");
 				this.carried = null;
+			};
+		return handler;
+	}
+
+	private NetworkRequest.Result GetPutDownHandler(GameObject carrying) {
+		NetworkRequest.Result handler = delegate(bool success)
+			{
+				if (success) {
+					return;
+				}
+
+				Debug.Log("SelectPickUpObject failure handler.");
+				this.carried = carrying;
 			};
 		return handler;
 	}

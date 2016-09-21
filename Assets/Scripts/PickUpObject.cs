@@ -22,13 +22,14 @@ public class PickUpObject : NetworkBehaviour
 	public bool beingCarried = false;
 
 	[Client]
-	public void PickUp(Transform parent, NetworkRequest.Result handler)
+	public void PickUp(NetworkRequest.Result handler)
 	{
 		if (beingCarried) {
 			Debug.Log("Object is already being carried.");
 			throw new System.Exception();
 		}
 
+		/*
 		Transform previousParent = transform.parent;
 		Vector2 previousPosition = transform.position;
 		Result internalHandler = delegate (bool success)
@@ -42,37 +43,30 @@ public class PickUpObject : NetworkBehaviour
 				}
 				handler(success);
 			};
-
+		*/
 		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		NetworkRequestService.Instance().RequestAuth( player, netId, internalHandler );
+		NetworkRequestService.Instance().RequestPickUp(player, netId, handler);
 
+		/*
 		beingCarried = true;
 		transform.position = parent.position;
 		transform.parent = parent;
-
+		*/
 		// TODO what slot did we pick up from?
 		//OnPickedUp (this.gameObject, null);
 	}
 
 	[Client]
-	public void PutDown(Transform container)
+	public void PutDown(GameObject container, NetworkRequest.Result handler)
 	{
-		if (!hasAuthority) {
-			Debug.Log("Do not have client authority.");
-			throw new System.Exception();
-		}
+		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
 
-		beingCarried = false;
 		if (container != null) {
-			transform.position = container.position;
-			transform.parent = container;
-		} else {
-			// TODO place on ground
-			transform.parent = null;
-		}
+			containerNetId = container.GetComponent<NetworkIdentity>().netId;
+		} 
 
 		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		NetworkRequestService.Instance().ReleaseAuth( player, netId );
+		NetworkRequestService.Instance().RequestPutDown(player, netId, containerNetId, handler);
 
 		//OnPlaced (this.gameObject, null);
 	}
