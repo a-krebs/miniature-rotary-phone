@@ -10,6 +10,7 @@ TagManager:
   - Cursor
   - Object
   - ScoreManager
+  - ClientAuthorityService
   layers:
   - Default
   - TransparentFX
