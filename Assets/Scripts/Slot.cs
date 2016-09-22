@@ -20,7 +20,7 @@ public class Slot : NetworkBehaviour, IContainer {
 		}
 	}
 
-	public PickUpObject Get(Transform parent, NetworkRequest.Result handler)
+	public PickUpObject Get(Transform parent)
 	{
 		if (Count < 1)
 		{
@@ -30,8 +30,14 @@ public class Slot : NetworkBehaviour, IContainer {
 		GameObject child = transform.GetChild(0).gameObject;
 		child.transform.position = parent.position;
 		child.transform.parent = parent;
-		// TODO null check
-		return child.GetComponent<PickUpObject>();
+		PickUpObject puo = child.GetComponent<PickUpObject>();
+		puo.beingCarried = true;
+		return puo;
+	}
+
+	public PickUpObject Get(Transform parent, NetworkRequest.Result handler)
+	{
+		throw new System.NotImplementedException();
 	}
 
 	public void Put(PickUpObject obj)
@@ -48,5 +54,10 @@ public class Slot : NetworkBehaviour, IContainer {
 		}
 		obj.transform.position = transform.position;
 		obj.transform.parent = transform;
+	}
+
+	public void Put(PickUpObject obj, NetworkRequest.Result handler)
+	{
+		throw new System.NotImplementedException();
 	}
 }

@@ -11,9 +11,11 @@ public interface IContainer
 
 	/// Get a PickUpObject from the container.
 	/// Return null if container is empty.
+	PickUpObject Get(Transform parent);
 	PickUpObject Get(Transform parent, NetworkRequest.Result handler);
 
 	/// Put the given PickUpObject in the container.
 	/// Throw an exception if the container is full.
 	void Put(PickUpObject obj);
+	void Put(PickUpObject obj, NetworkRequest.Result handler);
 }
