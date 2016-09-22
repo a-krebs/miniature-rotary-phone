@@ -65,7 +65,11 @@ public class BoxContainer : NetworkBehaviour, IContainer
 	void Update() {
 		for(int i = 0; i < transform.childCount; ++i) {
 			GameObject obj = transform.GetChild(i).gameObject;
-			obj.SetActive(false);
+			// special case for Cursor
+			if (obj.tag != "Cursor")
+			{
+				obj.SetActive(false);
+			}
 		}
 	}
 }
