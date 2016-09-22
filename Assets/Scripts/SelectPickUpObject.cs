@@ -25,15 +25,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
-		if (other.gameObject.tag == "Object" && !availableObjects.Contains(other.gameObject)) {
-			Debug.Log("New PickUpObject in range.");
+		if (
+				(other.gameObject.tag == "Object" || other.gameObject.tag == "BoxContainer")
+				&& !availableObjects.Contains(other.gameObject)
+		   ) 
+		{
+			Debug.Log("New PickUpObject or BoxContainer in range.");
 			availableObjects.Add(other.gameObject);
 		}
 	}
 	
 	void OnTriggerExit2D(Collider2D other) {
 		if (availableObjects.Contains(other.gameObject)) {
-			Debug.Log("PickUpObject went out of range.");
+			Debug.Log("PickUpObject or Box went out of range.");
 			availableObjects.Remove(other.gameObject);
 		}
 	}	
@@ -83,16 +87,29 @@ public class SelectPickUpObject : NetworkBehaviour {
 				ShowCursor (selected.transform);
 			} else if (Input.GetMouseButtonDown(0)) {
 				Debug.Log("Going to pick up object.");
-				// pick up
 				if (selected == null) {
 					Debug.Log("No object selected.");
 					return;
 				}
-				PickUpObject puo = selected.GetComponent<PickUpObject>();
-				carried = selected;
-				selected = null;
-				puo.PickUp(GetPickUpHandler());
-				Debug.Log("Picked up object.");
+				if (selected.tag == "Object")
+				{
+					PickUpObject puo = selected.GetComponent<PickUpObject>();
+					carried = selected;
+					selected = null;
+					HideCursor();
+					puo.PickUp(GetPickUpHandler());
+					Debug.Log("Picked up object.");
+				} else if (selected.tag == "BoxContainer") {
+					IContainer container = selected.GetComponent<BoxContainer>();
+					selected = null;
+					HideCursor();
+					PickUpObject puo = container.Get(transform, GetGetHandler());
+					carried = (puo == null ? null : puo.gameObject);
+					Debug.Log("Picked up object.");
+				} else {
+					// TODO error
+					return;
+				}
 			}
 		} else if (Input.GetMouseButtonDown(0)) {
 			// put down
@@ -136,6 +153,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return handler;
 	}
 
+	private NetworkRequest.Result GetGetHandler() {
+		NetworkRequest.Result handler = delegate(bool success)
+			{
+				if (success) {
+					return;
+				}
+
+				Debug.Log("SelectPickupObject failure handler.");
+				this.carried = null;
+			};
+		return handler;
+	}
+
 	private void HideCursor() {
 		cursor.transform.parent = null;
 		cursor.GetComponent<Cursor>().Hide();
@@ -148,7 +178,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 	}
 
 	private bool UpdateSelected (GameObject newSelected ) {
-		if (selected != null)
+		if (selected != null && selected.tag == "Object" )
 		{
 			PickUpObject puo = selected.GetComponent<PickUpObject>();
 			if (puo.beingCarried)

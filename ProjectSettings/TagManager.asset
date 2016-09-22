@@ -58,6 +58,9 @@ TagManager:
   - name: Objects
     uniqueID: 3788517669
     locked: 0
+  - name: BoxContainers
+    uniqueID: 3406549861
+    locked: 0
   - name: Cursor
     uniqueID: 2287852313
     locked: 0
