@@ -21,6 +21,7 @@ public class NetworkRequestService : NetworkBehaviour
 		Debug.Log("NetworkRequestService OnStartServer");
 		NetworkServer.RegisterHandler(RequestPickUpMsg.Type, OnRequestPickUp);
 		NetworkServer.RegisterHandler(RequestPutDownMsg.Type, OnRequestPutDown);
+		NetworkServer.RegisterHandler(RequestGetMsg.Type, OnRequestGet);
 	}
 
 	public override void OnStartClient()
@@ -37,6 +38,8 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.RegisterHandler(PickUpFailedMsg.Type, OnPickUpFailed);
 		m_client.RegisterHandler(PutDownSucceededMsg.Type, OnPutDownSucceeded);
 		m_client.RegisterHandler(PutDownFailedMsg.Type, OnPutDownFailed);
+		m_client.RegisterHandler(GetSucceededMsg.Type, OnGetSucceeded);
+		m_client.RegisterHandler(GetFailedMsg.Type, OnGetFailed);
 	}
 
 	[Client]
@@ -78,6 +81,26 @@ public class NetworkRequestService : NetworkBehaviour
 		request.OnResult += handler;
 		m_requests.Add(requestId, request);
 		m_client.Send(RequestPutDownMsg.Type, msg);
+	}
+
+	[Client]
+	public void RequestGet(NetworkInstanceId player, NetworkInstanceId container, NetworkRequest.Result handler)
+	{
+		uint requestId = GetNextRequestId();
+		if (m_requests.ContainsKey(requestId))
+		{
+			throw new System.Exception();
+		}
+		Debug.Log("Requesting Get for player with netId " + player.Value + " for container with netId " + container.Value);
+		RequestGetMsg msg = new RequestGetMsg();
+		msg.requestId = requestId;
+		msg.playerNetId = player.Value;
+		msg.containerNetId = container.Value;
+		Request request = new Request();
+		request.id = requestId;
+		request.OnResult += handler;
+		m_requests.Add(requestId, request);
+		m_client.Send(RequestGetMsg.Type, msg);
 	}
 
 	[Server]
@@ -208,6 +231,54 @@ public class NetworkRequestService : NetworkBehaviour
 		}
 	}
 
+
+	[Server]
+	void OnRequestGet(NetworkMessage msg)
+	{
+		RequestGetMsg request       = msg.ReadMessage<RequestGetMsg>();
+		NetworkInstanceId player    = new NetworkInstanceId(request.playerNetId);
+		NetworkInstanceId container = new NetworkInstanceId(request.containerNetId);
+
+		PlayerNumberManager manager = PlayerNumberManager.GetServerPlayerNumberManager();
+		NetworkConnection connection = manager.GetPlayerConnection(player);
+
+		Debug.Log("Received RequestGet message from player with netId " + player.Value + " for container with netId: " + container.Value);
+
+		GameObject playerInstance = NetworkServer.FindLocalObject(player);
+		GameObject containerGameObj = NetworkServer.FindLocalObject(container);
+		IContainer containerInstance = null; // fetched below
+
+		if (containerGameObj.tag == "BoxContainer")
+		{
+			BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
+			containerInstance = box;
+		} else if (containerGameObj.tag == "ObjectSlot") {
+			Slot slot = containerGameObj.GetComponent<Slot>();
+			containerInstance = slot;
+		}
+
+		PickUpObject puo = containerInstance.Get(playerInstance.transform);
+
+		if (puo != null)
+		{
+			NetworkInstanceId obj = puo.GetComponent<NetworkIdentity>().netId;
+			GetSucceededMsg response = new GetSucceededMsg();
+			response.requestId = request.requestId;
+			response.playerNetId = request.playerNetId;
+			response.containerNetId = request.containerNetId;
+			response.objNetId = obj.Value;
+			NetworkServer.SendToClient(connection.connectionId, GetSucceededMsg.Type, response);
+			Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
+		} else {
+			GetFailedMsg response = new GetFailedMsg();
+			response.requestId = request.requestId;
+			response.playerNetId = request.playerNetId;
+			response.containerNetId = request.containerNetId;
+			NetworkServer.SendToClient(connection.connectionId, GetFailedMsg.Type, response);
+			Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
+		}
+	}
+
 	[Client]
 	void OnPickUpSucceeded(NetworkMessage msg)
 	{
@@ -246,6 +317,28 @@ public class NetworkRequestService : NetworkBehaviour
 	{
 		PutDownFailedMsg response = msg.ReadMessage<PutDownFailedMsg>();
 		Debug.Log("Received PutDownFailedMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Failed();
+		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	void OnGetSucceeded(NetworkMessage msg)
+	{
+		GetSucceededMsg response = msg.ReadMessage<GetSucceededMsg>();
+		Debug.Log("Received GetSucceededMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Succeeded();
+		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	void OnGetFailed(NetworkMessage msg)
+	{
+		GetFailedMsg response = msg.ReadMessage<GetFailedMsg>();
+		Debug.Log("Received GetFailedMsg for player with netId " + response.playerNetId + " for container with netId " + response.containerNetId);
 		uint requestId = response.requestId;
 		Request request = m_requests[requestId];
 		request.Failed();
