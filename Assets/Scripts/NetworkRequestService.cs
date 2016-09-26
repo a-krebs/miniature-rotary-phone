@@ -215,8 +215,6 @@ public class NetworkRequestService : NetworkBehaviour
 			if (allow && container.Value != 0)
 			{
 				containerInstance = NetworkServer.FindLocalObject(container);
-			} else {
-				allow = false;
 			}
 
 			if (allow)
