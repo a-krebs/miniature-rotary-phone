@@ -116,14 +116,9 @@ public class SelectPickUpObject : NetworkBehaviour {
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
 			GameObject slot = GetClosestEmptySlot(defaultSearchRadius, puo.size);
-			if (slot == null) {
-				//carried = null;
-				//puo.PutDown(null);
-			} else {
-				GameObject carrying = this.carried;
-				carried = null;
-				puo.PutDown(slot, GetPutDownHandler(carrying));
-			}
+			GameObject carrying = this.carried;
+			carried = null;
+			puo.PutDown(slot, GetPutDownHandler(carrying));
 		}
 	}
 
