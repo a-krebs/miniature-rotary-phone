@@ -79,7 +79,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 0}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -113,6 +113,9 @@ MonoBehaviour:
   sprTeeth: {fileID: 21300000, guid: 4c94c37fa2f604decb7387661a13cafe, type: 3}
   sprBurb: {fileID: 21300000, guid: 6ecfb882113b444bc9c821017a72f744, type: 3}
   placeholder: {fileID: 21300000, guid: deddef3b0e44345aa9ee279c1b319539, type: 3}
+  greenBackground: {fileID: 21300000, guid: dad3f48efc4d01841be0412444d104f7, type: 3}
+  pinkBackground: {fileID: 21300000, guid: b742ad894d444fb4d8de53ce3e761844, type: 3}
+  background: {fileID: 0}
 --- !u!114 &11452548
 MonoBehaviour:
   m_ObjectHideFlags: 1
