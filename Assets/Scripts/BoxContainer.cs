@@ -30,11 +30,9 @@ public class BoxContainer : NetworkBehaviour, IContainer
 		}
 
 		GameObject child = transform.GetChild(0).gameObject;
-		child.transform.position = parent.position;
-		child.transform.parent = parent;
 		child.GetComponent<SpriteRenderer>().enabled = true;
 		PickUpObject puo = child.GetComponent<PickUpObject>();
-		puo.beingCarried = true;
+		puo.UpdateParent(parent, true);
 		return puo;
 	}
 
@@ -67,8 +65,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 			Debug.Log("Slot not empty.");
 			throw new System.MemberAccessException();
 		}
-		obj.transform.position = transform.position;
-		obj.transform.parent = transform;
+		obj.UpdateParent(transform, false);
 	}
 
 	public void Put(PickUpObject obj, NetworkRequest.Result handler)

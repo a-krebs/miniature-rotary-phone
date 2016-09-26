@@ -28,10 +28,8 @@ public class Slot : NetworkBehaviour, IContainer {
 			return null;
 		}
 		GameObject child = transform.GetChild(0).gameObject;
-		child.transform.position = parent.position;
-		child.transform.parent = parent;
 		PickUpObject puo = child.GetComponent<PickUpObject>();
-		puo.beingCarried = true;
+		puo.UpdateParent(parent, true);
 		return puo;
 	}
 
@@ -69,8 +67,7 @@ public class Slot : NetworkBehaviour, IContainer {
 			Debug.Log("Slot and object have different sizes.");
 			throw new System.MemberAccessException();
 		}
-		obj.transform.position = transform.position;
-		obj.transform.parent = transform;
+		obj.UpdateParent(transform, false);
 	}
 
 	public void Put(PickUpObject obj, NetworkRequest.Result handler)
