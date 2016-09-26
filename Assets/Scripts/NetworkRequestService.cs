@@ -281,39 +281,50 @@ public class NetworkRequestService : NetworkBehaviour
 
 		Debug.Log("Received RequestContainerGet message from player with netId " + player.Value + " for container with netId: " + container.Value);
 
-		GameObject playerInstance = NetworkServer.FindLocalObject(player);
-		GameObject containerGameObj = NetworkServer.FindLocalObject(container);
-		IContainer containerInstance = null; // fetched below
+		try {
+			GameObject playerInstance = NetworkServer.FindLocalObject(player);
+			GameObject containerGameObj = NetworkServer.FindLocalObject(container);
+			IContainer containerInstance = null; // fetched below
 
-		if (containerGameObj.tag == "BoxContainer")
-		{
-			BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
-			containerInstance = box;
-		} else if (containerGameObj.tag == "ObjectSlot") {
-			Slot slot = containerGameObj.GetComponent<Slot>();
-			containerInstance = slot;
-		}
+			if (containerGameObj.tag == "BoxContainer")
+			{
+				BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
+				containerInstance = box;
+			} else if (containerGameObj.tag == "ObjectSlot") {
+				Slot slot = containerGameObj.GetComponent<Slot>();
+				containerInstance = slot;
+			}
 
-		PickUpObject puo = containerInstance.Get(playerInstance.transform, GetNoOpHandler());
+			PickUpObject puo = containerInstance.Get(playerInstance.transform, GetNoOpHandler());
 
-		if (puo != null)
-		{
-			NetworkInstanceId obj = puo.GetComponent<NetworkIdentity>().netId;
-			ContainerGetSucceededMsg response = new ContainerGetSucceededMsg();
-			response.requestId = request.requestId;
-			response.playerNetId = request.playerNetId;
-			response.containerNetId = request.containerNetId;
-			response.objNetId = obj.Value;
-			NetworkServer.SendToClient(connection.connectionId, ContainerGetSucceededMsg.Type, response);
-			Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
-		} else {
-			ContainerGetFailedMsg response = new ContainerGetFailedMsg();
-			response.requestId = request.requestId;
-			response.playerNetId = request.playerNetId;
-			response.containerNetId = request.containerNetId;
-			NetworkServer.SendToClient(connection.connectionId, ContainerGetFailedMsg.Type, response);
+			if (puo != null)
+			{
+				NetworkInstanceId obj = puo.GetComponent<NetworkIdentity>().netId;
+				ContainerGetSucceededMsg response = new ContainerGetSucceededMsg();
+				response.requestId = request.requestId;
+				response.playerNetId = request.playerNetId;
+				response.containerNetId = request.containerNetId;
+				response.objNetId = obj.Value;
+				NetworkServer.SendToClient(connection.connectionId, ContainerGetSucceededMsg.Type, response);
+				Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
+			} else {
+				SendContainerGetFailedMsg(request, connection);
+				Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
+			}
+		} catch {
+			SendContainerGetFailedMsg(request, connection);
 			Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
 		}
+	}
+
+	[Server]
+	private void SendContainerGetFailedMsg(RequestContainerGetMsg request, NetworkConnection connection)
+	{
+		ContainerGetFailedMsg response = new ContainerGetFailedMsg();
+		response.requestId = request.requestId;
+		response.playerNetId = request.playerNetId;
+		response.containerNetId = request.containerNetId;
+		NetworkServer.SendToClient(connection.connectionId, ContainerGetFailedMsg.Type, response);
 	}
 
 	//// Server-side request handler.
