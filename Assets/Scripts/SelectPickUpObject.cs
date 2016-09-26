@@ -97,7 +97,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 					carried = selected;
 					selected = null;
 					HideCursor();
-					puo.PickUp(GetPickUpHandler());
+					puo.PickUp(transform, GetPickUpHandler());
 					Debug.Log("Picked up object.");
 				} else if (selected.tag == "BoxContainer") {
 					IContainer container = selected.GetComponent<BoxContainer>();
@@ -118,6 +118,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 			GameObject slot = GetClosestEmptySlot(defaultSearchRadius, puo.size);
 			GameObject carrying = this.carried;
 			carried = null;
+			// slot might be null, but that's OK
 			puo.PutDown(slot, GetPutDownHandler(carrying));
 		}
 	}
