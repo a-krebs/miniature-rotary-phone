@@ -81,7 +81,8 @@ public class Slot : NetworkBehaviour, IContainer {
 		} else if (isClient) {
 			PutChild(obj);
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-			//NetworkRequestService.Instance().RequestPut(player, netId, handler);
+			NetworkInstanceId objNetId = obj.GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().RequestPut(player, netId, objNetId, handler);
 			throw new System.NotImplementedException();
 		} else {
 			Debug.LogError("BoxContainer Put(...) called with invalid state.");
