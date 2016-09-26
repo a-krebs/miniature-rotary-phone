@@ -21,6 +21,7 @@ public class PickUpObject : NetworkBehaviour
 	[SyncVar]
 	public bool beingCarried = false;
 
+	/// Actually pick up the PickUpObject, assigning the new parent.
 	private void PickUpInternal(Transform parent)
 	{
 		if (beingCarried) {
@@ -34,14 +35,19 @@ public class PickUpObject : NetworkBehaviour
 		//OnPickedUp (this.gameObject, null);
 	}
 
+	/// Pick up the object.
+	///
+	/// If this is called on a network client, a network request is made,
+	/// then the object is picked up. If the request fails later, the pick
+	/// up action is reverted.
+	///
+	/// If this is called on a server or host, the object is picked up.
 	public void PickUp(Transform parent, NetworkRequest.Result handler)
 	{
 		if (beingCarried) {
 			Debug.Log("Object is already being carried.");
 			throw new System.Exception();
 		}
-
-		//Transform parent = player.transform;
 
 		if (isClient && isServer) {
 			PickUpInternal(parent);
@@ -77,6 +83,7 @@ public class PickUpObject : NetworkBehaviour
 		//OnPickedUp (this.gameObject, null);
 	}
 
+	// Actually place the PickUpObject into the container, if enough Capacity.
 	private void PutDownInternal(GameObject container)
 	{
 		if (container != null) {
@@ -91,6 +98,15 @@ public class PickUpObject : NetworkBehaviour
 		}
 	}
 
+	/// Put down the object.
+	///
+	/// If the 'container' is null, place the object on the ground.
+	///
+	/// If this is called on a network client, a network request is made,
+	/// then the object is put down. If the request fails later, the
+	/// action is reverted.
+	///
+	/// If this is called on a server or host, the object is placed down.
 	public void PutDown(GameObject container, NetworkRequest.Result handler)
 	{
 		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
@@ -134,6 +150,7 @@ public class PickUpObject : NetworkBehaviour
 		//OnPlaced (this.gameObject, null);
 	}
 
+	/// Update the PickUpObject's parent transform, and set 'beingCarried'.
 	public void UpdateParent(Transform parent, bool beingCarried)
 	{
 		this.beingCarried = beingCarried;
@@ -145,6 +162,9 @@ public class PickUpObject : NetworkBehaviour
 		transform.parent = parent;
 	}
 
+	/// Utility method to get the IContainer from different GameObjects.
+	///
+	/// Throws NotImplementedException for unknown GameObject tags.
 	public static IContainer GetIContainer(GameObject containerGameObj)
 	{
 		IContainer containerInstance = null;
@@ -157,6 +177,8 @@ public class PickUpObject : NetworkBehaviour
 			Debug.Log("Put into ObjectSlot.");
 			Slot slot = containerGameObj.GetComponent<Slot>();
 			containerInstance = slot;
+		} else {
+			throw new System.NotImplementedException();
 		}
 
 		return containerInstance;
