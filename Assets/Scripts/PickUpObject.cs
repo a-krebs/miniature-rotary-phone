@@ -21,52 +21,115 @@ public class PickUpObject : NetworkBehaviour
 	[SyncVar]
 	public bool beingCarried = false;
 
-	[Client]
-	public void PickUp(NetworkRequest.Result handler)
+	private void PickUpInternal(Transform parent)
 	{
 		if (beingCarried) {
 			Debug.Log("Object is already being carried.");
 			throw new System.Exception();
 		}
 
-		/*
-		Transform previousParent = transform.parent;
-		Vector2 previousPosition = transform.position;
-		Result internalHandler = delegate (bool success)
-			{
-				if(!success)
-				{
-					Debug.Log("PickUpObject.PickedUp failure handler.");
-					this.beingCarried = false;
-					this.transform.position = previousPosition;
-					this.transform.parent = previousParent;
-				}
-				handler(success);
-			};
-		*/
-		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		NetworkRequestService.Instance().RequestPickUp(player, netId, handler);
+		UpdateParent(parent, true);
 
-		/*
-		beingCarried = true;
-		transform.position = parent.position;
-		transform.parent = parent;
-		*/
 		// TODO what slot did we pick up from?
 		//OnPickedUp (this.gameObject, null);
 	}
 
-	[Client]
+	public void PickUp(Transform parent, NetworkRequest.Result handler)
+	{
+		if (beingCarried) {
+			Debug.Log("Object is already being carried.");
+			throw new System.Exception();
+		}
+
+		//Transform parent = player.transform;
+
+		if (isClient && isServer) {
+			PickUpInternal(parent);
+			handler(true);
+		} else if (isServer) {
+			PickUpInternal(parent);
+			handler(true);
+		} else if (isClient) {
+			GameObject player = PlayerNumber.GetLocalPlayerGameObject();
+			NetworkInstanceId playerNetId = player.GetComponent<NetworkIdentity>().netId;
+			Transform previousParent = transform.parent;
+			Vector2 previousPosition = transform.position;
+			Result internalHandler = delegate (bool success)
+				{
+					if(!success)
+					{
+						Debug.Log("PickUpObject.PickedUp failure handler.");
+						this.beingCarried = false;
+						this.transform.position = previousPosition;
+						this.transform.parent = previousParent;
+					}
+					handler(success);
+				};
+			Debug.Log("Picking up PickUpObject, player with netId " + playerNetId + ", object with netId " + netId.Value);
+			PickUpInternal(parent);
+			NetworkRequestService.Instance().RequestPickUp(playerNetId, netId, internalHandler);
+		} else {
+			Debug.LogError("PickUpObject PickUp(...) called with invalid state.");
+			throw new System.Exception();
+		}
+
+		// TODO what slot did we pick up from?
+		//OnPickedUp (this.gameObject, null);
+	}
+
+	private void PutDownInternal(GameObject container)
+	{
+		if (container != null) {
+			IContainer c = GetIContainer(container);
+			if (c.Count >= c.Capacity) {
+				Debug.Log("Container full.");
+				throw new System.Exception();
+			}
+			UpdateParent(container.transform, false);
+		} else {
+			UpdateParent(container.transform, false);
+		}
+	}
+
 	public void PutDown(GameObject container, NetworkRequest.Result handler)
 	{
 		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
 
 		if (container != null) {
 			containerNetId = container.GetComponent<NetworkIdentity>().netId;
-		} 
+		}
 
-		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-		NetworkRequestService.Instance().RequestPutDown(player, netId, containerNetId, handler);
+		if (isClient && isServer) {
+			PutDownInternal(container);
+			handler(true);
+		} else if (isServer) {
+			PutDownInternal(container);
+			handler(true);
+		} else if (isClient) {
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+
+			Transform previousParent = transform.parent;
+			Vector2 previousPosition = transform.position;
+			Result internalHandler = delegate (bool success)
+				{
+					if(!success)
+					{
+						Debug.Log("PickUpObject.PickedUp failure handler.");
+						this.beingCarried = false;
+						this.transform.position = previousPosition;
+						this.transform.parent = previousParent;
+					}
+					handler(success);
+				};
+
+			Debug.Log("Putting down PickUpObject, player with netId " + player.Value + ", object with netId " + netId.Value + ", container netId: " + containerNetId.Value);
+			PutDownInternal(container);
+			NetworkRequestService.Instance().RequestPutDown(player, netId, containerNetId, internalHandler);
+		} else {
+			Debug.LogError("PickUpObject PutDown(...) called with invalid state.");
+			throw new System.Exception();
+		}
+
 
 		//OnPlaced (this.gameObject, null);
 	}
