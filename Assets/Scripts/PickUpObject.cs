@@ -12,7 +12,12 @@ public class PickUpObject : NetworkBehaviour
 	public delegate void Placed(GameObject obj, GameObject slot);
 	public delegate void PickedUp(GameObject obj, GameObject slot);
 
+	/// Called when PickUpObject is set down. Param 'slot' might be null
+	/// if object is set on ground or into box.
 	public static event Placed OnPlaced;
+
+	/// Called when PickUpObject is picked up. Param 'slot' might be null
+	/// if object is picked up from the ground or a box.
 	public static event PickedUp OnPickedUp;
 
 	public enum Size { Small, Medium, Large };

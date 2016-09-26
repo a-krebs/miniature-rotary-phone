@@ -77,6 +77,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 			PutChild(obj);
 			handler(true);
 		} else if (isClient) {
+			// TODO undo?
 			PutChild(obj);
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			NetworkInstanceId objNetId = obj.GetComponent<NetworkIdentity>().netId;

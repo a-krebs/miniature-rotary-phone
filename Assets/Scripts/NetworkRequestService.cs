@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine.Networking;
 using NetworkRequest;
 
+/// Class that sends and receives network requests.
+///
+/// An instance of his class must be available on the server. The GameObject
+/// must be server-only, and have the tag "NetworkRequestService".
 public class NetworkRequestService : NetworkBehaviour
 {
 	private NetworkClient m_client;
