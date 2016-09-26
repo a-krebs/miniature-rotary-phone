@@ -196,7 +196,7 @@ public class NetworkRequestService : NetworkBehaviour
 		try {
 			GameObject playerInstance = NetworkServer.FindLocalObject(player);
 			GameObject objInstance = NetworkServer.FindLocalObject(obj);
-			IContainer containerInstance = null; // fetched below
+			GameObject containerInstance = null; // fetched below
 
 			PickUpObject puo = objInstance.GetComponent<PickUpObject>();
 
@@ -214,51 +214,14 @@ public class NetworkRequestService : NetworkBehaviour
 
 			if (allow && container.Value != 0)
 			{
-				GameObject containerGameObj = NetworkServer.FindLocalObject(container);
-
-				if (containerGameObj.tag == "BoxContainer")
-				{
-					Debug.Log("PutDown into BoxContainer.");
-					BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
-					containerInstance = box;
-				} else if (containerGameObj.tag == "ObjectSlot") {
-					Debug.Log("PutDown into ObjectSlot.");
-					Slot slot = containerGameObj.GetComponent<Slot>();
-					containerInstance = slot;
-				}
-
-				if (containerInstance == null)
-				{
-					Debug.Log("PutDown Failed: couldn't get IContainer.");
-					allow = false;
-				} else if(containerInstance.Count >= containerInstance.Capacity) {
-					Debug.Log("PutDown Failed: container capacity exceeded.");
-					allow = false;
-				}
+				containerInstance = NetworkServer.FindLocalObject(container);
+			} else {
+				allow = false;
 			}
 
 			if (allow)
 			{
-				bool putOnGround = false;
-				puo.beingCarried = false;
-				if (containerInstance != null)
-				{
-					try {
-						containerInstance.Put(puo, GetNoOpHandler());
-					} catch {
-						Debug.Log("containerInstance.Put(...) failed.");
-						putOnGround = true;
-					}
-				} else {
-					putOnGround = true;
-				}
-
-				if (putOnGround)
-				{
-					// TODO drop on ground
-					objInstance.transform.position = playerInstance.transform.position;
-					objInstance.transform.parent = null;
-				}
+				puo.PutDown(containerInstance, GetNoOpHandler());
 
 				PutDownSucceededMsg response = new PutDownSucceededMsg();
 				response.requestId = request.requestId;
