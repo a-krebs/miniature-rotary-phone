@@ -20,7 +20,7 @@ public class Slot : NetworkBehaviour, IContainer {
 		}
 	}
 
-	public PickUpObject Get(Transform parent)
+	private PickUpObject GetChild(Transform parent)
 	{
 		if (Count < 1)
 		{
@@ -37,10 +37,27 @@ public class Slot : NetworkBehaviour, IContainer {
 
 	public PickUpObject Get(Transform parent, NetworkRequest.Result handler)
 	{
-		throw new System.NotImplementedException();
+		if (isServer && isClient) {
+			PickUpObject child = GetChild(parent);
+			handler(child != null);
+			return child;
+		} else if (isServer) {
+			PickUpObject child = GetChild(parent);
+			handler(child != null);
+			return child;
+		} else if (isClient) {
+			// TODO undo?
+			PickUpObject child = GetChild(parent);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().RequestGet(player, netId, handler);
+			return child;
+		} else {
+			Debug.LogError("BoxContainer Get(...) called with invalid state.");
+			throw new System.Exception();
+		}
 	}
 
-	public void Put(PickUpObject obj)
+	private void PutChild(PickUpObject obj)
 	{
 		if (Count >= Capacity)
 		{
@@ -58,6 +75,20 @@ public class Slot : NetworkBehaviour, IContainer {
 
 	public void Put(PickUpObject obj, NetworkRequest.Result handler)
 	{
-		throw new System.NotImplementedException();
+		if (isServer && isClient) {
+			PutChild(obj);
+			handler(true);
+		} else if (isServer) {
+			PutChild(obj);
+			handler(true);
+		} else if (isClient) {
+			PutChild(obj);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			//NetworkRequestService.Instance().RequestPut(player, netId, handler);
+			throw new System.NotImplementedException();
+		} else {
+			Debug.LogError("BoxContainer Put(...) called with invalid state.");
+			throw new System.Exception();
+		}
 	}
 }

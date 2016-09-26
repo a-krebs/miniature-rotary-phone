@@ -21,17 +21,18 @@ public class BoxContainer : NetworkBehaviour, IContainer
 		}
 	}
 
-	public PickUpObject Get(Transform parent)
+	private PickUpObject GetChild(Transform parent)
 	{
 		if (Count < 1)
 		{
 			Debug.Log("BoxContainer empty.");
 			return null;
 		}
+
 		GameObject child = transform.GetChild(0).gameObject;
 		child.transform.position = parent.position;
 		child.transform.parent = parent;
-		child.SetActive(true);
+		child.GetComponent<SpriteRenderer>().enabled = true;
 		PickUpObject puo = child.GetComponent<PickUpObject>();
 		puo.beingCarried = true;
 		return puo;
@@ -39,14 +40,27 @@ public class BoxContainer : NetworkBehaviour, IContainer
 
 	public PickUpObject Get(Transform parent, NetworkRequest.Result handler)
 	{
-		NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-
-		PickUpObject child = transform.GetChild(0).gameObject.GetComponent<PickUpObject>();
-		NetworkRequestService.Instance().RequestGet(player, netId, handler);
-		return child;
+		if (isServer && isClient) {
+			PickUpObject child = GetChild(parent);
+			handler(child != null);
+			return child;
+		} else if (isServer) {
+			PickUpObject child = GetChild(parent);
+			handler(child != null);
+			return child;
+		} else if (isClient) {
+			// TODO undo?
+			PickUpObject child = GetChild(parent);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().RequestGet(player, netId, handler);
+			return child;
+		} else {
+			Debug.LogError("BoxContainer Get(...) called with invalid state.");
+			throw new System.Exception();
+		}
 	}
 
-	public void Put(PickUpObject obj)
+	private void PutChild(PickUpObject obj)
 	{
 		if (Count >= Capacity)
 		{
@@ -59,7 +73,21 @@ public class BoxContainer : NetworkBehaviour, IContainer
 
 	public void Put(PickUpObject obj, NetworkRequest.Result handler)
 	{
-		throw new System.NotImplementedException();
+		if (isServer && isClient) {
+			PutChild(obj);
+			handler(true);
+		} else if (isServer) {
+			PutChild(obj);
+			handler(true);
+		} else if (isClient) {
+			PutChild(obj);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			//NetworkRequestService.Instance().RequestPut(player, netId, handler);
+			throw new System.NotImplementedException();
+		} else {
+			Debug.LogError("BoxContainer Put(...) called with invalid state.");
+			throw new System.Exception();
+		}
 	}
 
 	void Update() {
@@ -68,7 +96,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 			// special case for Cursor
 			if (obj.tag != "Cursor")
 			{
-				obj.SetActive(false);
+				obj.GetComponent<SpriteRenderer>().enabled = false;
 			}
 		}
 	}

@@ -11,11 +11,19 @@ public interface IContainer
 
 	/// Get a PickUpObject from the container.
 	/// Return null if container is empty.
-	PickUpObject Get(Transform parent);
+	///
+	/// The handler is called asynchronously when the call
+	/// succeeds or fails. The caller must revert any actions taken
+	/// appropriately. The handler is *NOT* guaranteed to be called
+	/// after this method returns; it may be called before.
 	PickUpObject Get(Transform parent, NetworkRequest.Result handler);
 
 	/// Put the given PickUpObject in the container.
 	/// Throw an exception if the container is full.
-	void Put(PickUpObject obj);
+	///
+	/// The handler is called asynchronously when the call
+	/// succeeds or fails. The caller must revert any actions taken
+	/// appropriately. The handler is *NOT* guaranteed to be called
+	/// after this method returns; it may be called before.
 	void Put(PickUpObject obj, NetworkRequest.Result handler);
 }
