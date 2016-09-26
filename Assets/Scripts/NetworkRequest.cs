@@ -2,8 +2,13 @@ using UnityEngine.Networking;
 
 namespace NetworkRequest
 {
+	/// Type for callbacks used by NetworkRequestService methods.
+	///
+	/// To be called with 'true' if the request succeeds, and 'false'
+	/// if the request fails.
 	public delegate void Result(bool success);
 
+	/// Container to track asynchronous network requests.
 	public class Request
 	{
 		public uint id;

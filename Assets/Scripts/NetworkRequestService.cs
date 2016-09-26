@@ -45,6 +45,10 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.RegisterHandler(ContainerPutFailedMsg.Type, OnContainerPutFailed);
 	}
 
+	/// Request that 'player' picks up 'obj'.
+	///
+	/// Param 'handler' will be called with argument 'true' if requests succeeds,
+	/// 'false' if request fails.
 	[Client]
 	public void RequestObjectPickUp(NetworkInstanceId player, NetworkInstanceId obj, NetworkRequest.Result handler)
 	{
@@ -65,6 +69,11 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.Send(RequestObjectPickUpMsg.Type, msg);
 	}
 
+	/// Request that 'player' puts down 'obj' into 'container'.
+	/// Param 'container' can be 0 if object is to be placed on the ground.
+	///
+	/// Param 'handler' will be called with argument 'true' if requests succeeds,
+	/// 'false' if request fails.
 	[Client]
 	public void RequestObjectPutDown(NetworkInstanceId player, NetworkInstanceId obj, NetworkInstanceId container, NetworkRequest.Result handler)
 	{
@@ -86,6 +95,10 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.Send(RequestObjectPutDownMsg.Type, msg);
 	}
 
+	/// Request that 'player' gets an object from 'container'
+	///
+	/// Param 'handler' will be called with argument 'true' if requests succeeds,
+	/// 'false' if request fails.
 	[Client]
 	public void RequestContainerGet(NetworkInstanceId player, NetworkInstanceId container, NetworkRequest.Result handler)
 	{
@@ -106,6 +119,10 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.Send(RequestContainerGetMsg.Type, msg);
 	}
 
+	/// Request that 'player' places 'obj' into 'container'.
+	///
+	/// Param 'handler' will be called with argument 'true' if requests succeeds,
+	/// 'false' if request fails.
 	[Client]
 	public void RequestContainerPut(NetworkInstanceId player, NetworkInstanceId container, NetworkInstanceId obj, NetworkRequest.Result handler)
 	{
@@ -127,6 +144,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.Send(RequestContainerPutMsg.Type, msg);
 	}
 
+	//// Server-side request handler.
 	[Server]
 	void OnRequestObjectPickUp(NetworkMessage msg)
 	{
@@ -180,6 +198,7 @@ public class NetworkRequestService : NetworkBehaviour
 		NetworkServer.SendToClient(connection.connectionId, ObjectPickUpFailedMsg.Type, response);
 	}
 
+	//// Server-side request handler.
 	[Server]
 	void OnRequestObjectPutDown(NetworkMessage msg)
 	{
@@ -249,6 +268,7 @@ public class NetworkRequestService : NetworkBehaviour
 		NetworkServer.SendToClient(connection.connectionId, ObjectPutDownFailedMsg.Type, response);
 	}
 
+	//// Server-side request handler.
 	[Server]
 	void OnRequestContainerGet(NetworkMessage msg)
 	{
@@ -296,6 +316,7 @@ public class NetworkRequestService : NetworkBehaviour
 		}
 	}
 
+	//// Server-side request handler.
 	[Server]
 	void OnRequestContainerPut(NetworkMessage msg)
 	{
@@ -375,6 +396,7 @@ public class NetworkRequestService : NetworkBehaviour
 		NetworkServer.SendToClient(connection.connectionId, ContainerPutFailedMsg.Type, response);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnObjectPickUpSucceeded(NetworkMessage msg)
 	{
@@ -386,6 +408,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnObjectPickUpFailed(NetworkMessage msg)
 	{
@@ -397,6 +420,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnObjectPutDownSucceeded(NetworkMessage msg)
 	{
@@ -408,6 +432,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnObjectPutDownFailed(NetworkMessage msg)
 	{
@@ -419,6 +444,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnContainerGetSucceeded(NetworkMessage msg)
 	{
@@ -430,6 +456,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnContainerGetFailed(NetworkMessage msg)
 	{
@@ -441,6 +468,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnContainerPutSucceeded(NetworkMessage msg)
 	{
@@ -452,6 +480,7 @@ public class NetworkRequestService : NetworkBehaviour
 		m_requests.Remove(requestId);
 	}
 
+	/// Client-side response handler. Calls the handler passed in with the request.
 	[Client]
 	void OnContainerPutFailed(NetworkMessage msg)
 	{
