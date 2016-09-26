@@ -34,10 +34,18 @@ public class PickUpObject : NetworkBehaviour
 			throw new System.Exception();
 		}
 
+		Transform oldParent = transform.parent;
+
 		UpdateParent(parent, true);
 
-		// TODO what slot did we pick up from?
-		//OnPickedUp (this.gameObject, null);
+		if (oldParent != null) {
+			GameObject obj = oldParent.gameObject;
+			if (obj.GetComponent<Slot>() != null) {
+				OnPickedUp (this.gameObject, obj);
+			}
+		} else {
+			OnPickedUp (this.gameObject, null);
+		}
 	}
 
 	/// Pick up the object.
@@ -83,9 +91,6 @@ public class PickUpObject : NetworkBehaviour
 			Debug.LogError("PickUpObject PickUp(...) called with invalid state.");
 			throw new System.Exception();
 		}
-
-		// TODO what slot did we pick up from?
-		//OnPickedUp (this.gameObject, null);
 	}
 
 	// Actually place the PickUpObject into the container, if enough Capacity.
@@ -100,6 +105,12 @@ public class PickUpObject : NetworkBehaviour
 			UpdateParent(container.transform, false);
 		} else {
 			UpdateParent(null, false);
+		}
+
+		if (container != null && container.GetComponent<Slot>() != null) {
+			OnPickedUp (this.gameObject, container);
+		} else {
+			OnPlaced (this.gameObject, null);
 		}
 	}
 
@@ -150,9 +161,6 @@ public class PickUpObject : NetworkBehaviour
 			Debug.LogError("PickUpObject PutDown(...) called with invalid state.");
 			throw new System.Exception();
 		}
-
-
-		//OnPlaced (this.gameObject, null);
 	}
 
 	/// Update the PickUpObject's parent transform, and set 'beingCarried'.
