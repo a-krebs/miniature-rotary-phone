@@ -25,10 +25,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
-		if (
-				(other.gameObject.tag == "Object" || other.gameObject.tag == "BoxContainer")
-				&& !availableObjects.Contains(other.gameObject)
-		   ) 
+		if (IsSelectableObject(other.gameObject))
 		{
 			Debug.Log("New PickUpObject or BoxContainer in range.");
 			availableObjects.Add(other.gameObject);
@@ -121,6 +118,14 @@ public class SelectPickUpObject : NetworkBehaviour {
 			// slot might be null, but that's OK
 			puo.PutDown(slot, GetPutDownHandler(carrying));
 		}
+	}
+
+	private bool IsSelectableObject(GameObject obj) {
+		bool valid = true;
+		valid &= obj.tag == "Object" || obj.tag == "BoxContainer";
+		valid &= !availableObjects.Contains(obj);
+		valid &= obj.GetComponent<SpriteRenderer>().enabled;
+		return valid;
 	}
 
 	private NetworkRequest.Result GetPickUpHandler() {
