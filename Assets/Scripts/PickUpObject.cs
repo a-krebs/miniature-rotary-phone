@@ -87,7 +87,7 @@ public class PickUpObject : NetworkBehaviour
 			}
 			UpdateParent(container.transform, false);
 		} else {
-			UpdateParent(container.transform, false);
+			UpdateParent(null, false);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class PickUpObject : NetworkBehaviour
 
 	public void UpdateParent(Transform parent, bool beingCarried)
 	{
-		beingCarried = beingCarried;
+		this.beingCarried = beingCarried;
 		if (parent != null) {
 			transform.position = parent.position;
 		} else {
