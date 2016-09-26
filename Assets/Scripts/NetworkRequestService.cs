@@ -22,6 +22,7 @@ public class NetworkRequestService : NetworkBehaviour
 		NetworkServer.RegisterHandler(RequestPickUpMsg.Type, OnRequestPickUp);
 		NetworkServer.RegisterHandler(RequestPutDownMsg.Type, OnRequestPutDown);
 		NetworkServer.RegisterHandler(RequestGetMsg.Type, OnRequestGet);
+		NetworkServer.RegisterHandler(RequestPutMsg.Type, OnRequestPut);
 	}
 
 	public override void OnStartClient()
@@ -40,6 +41,8 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.RegisterHandler(PutDownFailedMsg.Type, OnPutDownFailed);
 		m_client.RegisterHandler(GetSucceededMsg.Type, OnGetSucceeded);
 		m_client.RegisterHandler(GetFailedMsg.Type, OnGetFailed);
+		m_client.RegisterHandler(PutSucceededMsg.Type, OnPutSucceeded);
+		m_client.RegisterHandler(PutFailedMsg.Type, OnPutFailed);
 	}
 
 	[Client]
@@ -101,6 +104,27 @@ public class NetworkRequestService : NetworkBehaviour
 		request.OnResult += handler;
 		m_requests.Add(requestId, request);
 		m_client.Send(RequestGetMsg.Type, msg);
+	}
+
+	[Client]
+	public void RequestPut(NetworkInstanceId player, NetworkInstanceId container, NetworkInstanceId obj, NetworkRequest.Result handler)
+	{
+		uint requestId = GetNextRequestId();
+		if (m_requests.ContainsKey(requestId))
+		{
+			throw new System.Exception();
+		}
+		Debug.Log("Requesting Get for player with netId " + player.Value + " for container with netId " + container.Value);
+		RequestPutMsg msg = new RequestPutMsg();
+		msg.requestId = requestId;
+		msg.playerNetId = player.Value;
+		msg.containerNetId = container.Value;
+		msg.objNetId = obj.Value;
+		Request request = new Request();
+		request.id = requestId;
+		request.OnResult += handler;
+		m_requests.Add(requestId, request);
+		m_client.Send(RequestPutMsg.Type, msg);
 	}
 
 	[Server]
@@ -264,7 +288,6 @@ public class NetworkRequestService : NetworkBehaviour
 		NetworkServer.SendToClient(connection.connectionId, PutDownFailedMsg.Type, response);
 	}
 
-
 	[Server]
 	void OnRequestGet(NetworkMessage msg)
 	{
@@ -310,6 +333,85 @@ public class NetworkRequestService : NetworkBehaviour
 			NetworkServer.SendToClient(connection.connectionId, GetFailedMsg.Type, response);
 			Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
 		}
+	}
+
+	[Server]
+	void OnRequestPut(NetworkMessage msg)
+	{
+		RequestPutMsg request       = msg.ReadMessage<RequestPutMsg>();
+		NetworkInstanceId player    = new NetworkInstanceId(request.playerNetId);
+		NetworkInstanceId container = new NetworkInstanceId(request.containerNetId);
+		NetworkInstanceId obj       = new NetworkInstanceId(request.objNetId);
+
+		PlayerNumberManager manager = PlayerNumberManager.GetServerPlayerNumberManager();
+		NetworkConnection connection = manager.GetPlayerConnection(player);
+
+		Debug.Log("Received RequestPut message from player with netId " + player.Value + " for object with netId " + obj.Value + " and container netId: " + container.Value);
+
+		try {
+			GameObject playerInstance = NetworkServer.FindLocalObject(player);
+			GameObject objInstance = NetworkServer.FindLocalObject(obj);
+			IContainer containerInstance = null; // fetched below
+
+			PickUpObject puo = objInstance.GetComponent<PickUpObject>();
+
+			bool allow = true;
+			allow &= playerInstance != null;
+			allow &= objInstance != null;
+			allow &= puo != null;
+
+			if (allow && !puo.beingCarried)
+			{
+				// TODO make sure the requesting player is carrying the object
+				Debug.Log("Put Failed: object not being carried?");
+				allow = false;
+			}
+
+			if (allow && container.Value != 0)
+			{
+				GameObject containerGameObj = NetworkServer.FindLocalObject(container);
+				containerInstance = PickUpObject.GetIContainer(containerGameObj);
+
+				if (containerInstance == null)
+				{
+					Debug.Log("Put Failed: couldn't get IContainer.");
+					allow = false;
+				} else if(containerInstance.Count >= containerInstance.Capacity) {
+					Debug.Log("Put Failed: container capacity exceeded.");
+					allow = false;
+				}
+			}
+
+			if (allow)
+			{
+				containerInstance.Put(puo, GetNoOpHandler());
+
+				PutSucceededMsg response = new PutSucceededMsg();
+				response.requestId = request.requestId;
+				response.playerNetId = request.playerNetId;
+				response.objNetId = request.objNetId;
+				response.containerNetId = request.containerNetId;
+				NetworkServer.SendToClient(connection.connectionId, PutSucceededMsg.Type, response);
+				Debug.Log("Put Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+			} else {
+				SendPutFailedMsg(request, connection);
+				Debug.Log("Put Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);
+			}
+		} catch {
+			SendPutFailedMsg(request, connection);
+			Debug.Log("Put Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);
+		}
+	}
+
+	[Server]
+	private void SendPutFailedMsg(RequestPutMsg request, NetworkConnection connection)
+	{
+		PutFailedMsg response = new PutFailedMsg();
+		response.requestId = request.requestId;
+		response.playerNetId = request.playerNetId;
+		response.objNetId = request.objNetId;
+		response.containerNetId = request.containerNetId;
+		NetworkServer.SendToClient(connection.connectionId, PutFailedMsg.Type, response);
 	}
 
 	[Client]
@@ -372,6 +474,28 @@ public class NetworkRequestService : NetworkBehaviour
 	{
 		GetFailedMsg response = msg.ReadMessage<GetFailedMsg>();
 		Debug.Log("Received GetFailedMsg for player with netId " + response.playerNetId + " for container with netId " + response.containerNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Failed();
+		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	void OnPutSucceeded(NetworkMessage msg)
+	{
+		PutSucceededMsg response = msg.ReadMessage<PutSucceededMsg>();
+		Debug.Log("Received PutSucceededMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
+		uint requestId = response.requestId;
+		Request request = m_requests[requestId];
+		request.Succeeded();
+		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	void OnPutFailed(NetworkMessage msg)
+	{
+		PutFailedMsg response = msg.ReadMessage<PutFailedMsg>();
+		Debug.Log("Received PutFailedMsg for player with netId " + response.playerNetId + " for object with netId " + response.objNetId);
 		uint requestId = response.requestId;
 		Request request = m_requests[requestId];
 		request.Failed();

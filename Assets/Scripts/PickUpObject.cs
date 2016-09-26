@@ -70,4 +70,32 @@ public class PickUpObject : NetworkBehaviour
 
 		//OnPlaced (this.gameObject, null);
 	}
+
+	public void UpdateParent(Transform parent, bool beingCarried)
+	{
+		beingCarried = beingCarried;
+		if (parent != null) {
+			transform.position = parent.position;
+		} else {
+			// TODO set on ground
+		}
+		transform.parent = parent;
+	}
+
+	public static IContainer GetIContainer(GameObject containerGameObj)
+	{
+		IContainer containerInstance = null;
+		if (containerGameObj.tag == "BoxContainer")
+		{
+			Debug.Log("Put into BoxContainer.");
+			BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
+			containerInstance = box;
+		} else if (containerGameObj.tag == "ObjectSlot") {
+			Debug.Log("Put into ObjectSlot.");
+			Slot slot = containerGameObj.GetComponent<Slot>();
+			containerInstance = slot;
+		}
+
+		return containerInstance;
+	}
 }
