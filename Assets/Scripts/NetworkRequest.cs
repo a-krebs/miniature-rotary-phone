@@ -96,4 +96,31 @@ namespace NetworkRequest
 		public uint playerNetId;
 		public uint containerNetId;
 	}
+
+	public class RequestPutMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 10;
+		public uint requestId;
+		public uint playerNetId;
+		public uint containerNetId;
+		public uint objNetId;
+	}
+
+	public class PutSucceededMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 11;
+		public uint requestId;
+		public uint playerNetId;
+		public uint containerNetId;
+		public uint objNetId;
+	}
+
+	public class PutFailedMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 12;
+		public uint requestId;
+		public uint playerNetId;
+		public uint containerNetId;
+		public uint objNetId;
+	}
 }
