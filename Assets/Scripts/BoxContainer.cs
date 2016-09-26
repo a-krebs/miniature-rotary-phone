@@ -50,7 +50,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 			// TODO undo?
 			PickUpObject child = GetChild(parent);
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-			NetworkRequestService.Instance().RequestGet(player, netId, handler);
+			NetworkRequestService.Instance().RequestContainerGet(player, netId, handler);
 			return child;
 		} else {
 			Debug.LogError("BoxContainer Get(...) called with invalid state.");
@@ -80,7 +80,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 			PutChild(obj);
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			NetworkInstanceId objNetId = obj.GetComponent<NetworkIdentity>().netId;
-			NetworkRequestService.Instance().RequestPut(player, netId, objNetId, handler);
+			NetworkRequestService.Instance().RequestContainerPut(player, netId, objNetId, handler);
 			throw new System.NotImplementedException();
 		} else {
 			Debug.LogError("BoxContainer Put(...) called with invalid state.");

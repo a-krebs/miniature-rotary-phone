@@ -67,7 +67,7 @@ public class PickUpObject : NetworkBehaviour
 				};
 			Debug.Log("Picking up PickUpObject, player with netId " + playerNetId + ", object with netId " + netId.Value);
 			PickUpInternal(parent);
-			NetworkRequestService.Instance().RequestPickUp(playerNetId, netId, internalHandler);
+			NetworkRequestService.Instance().RequestObjectPickUp(playerNetId, netId, internalHandler);
 		} else {
 			Debug.LogError("PickUpObject PickUp(...) called with invalid state.");
 			throw new System.Exception();
@@ -124,7 +124,7 @@ public class PickUpObject : NetworkBehaviour
 
 			Debug.Log("Putting down PickUpObject, player with netId " + player.Value + ", object with netId " + netId.Value + ", container netId: " + containerNetId.Value);
 			PutDownInternal(container);
-			NetworkRequestService.Instance().RequestPutDown(player, netId, containerNetId, internalHandler);
+			NetworkRequestService.Instance().RequestObjectPutDown(player, netId, containerNetId, internalHandler);
 		} else {
 			Debug.LogError("PickUpObject PutDown(...) called with invalid state.");
 			throw new System.Exception();

@@ -21,7 +21,7 @@ namespace NetworkRequest
 	}
 
 	// TODO combine Succeeded and Failed messages into one type, with `bool success` member?
-	public class RequestPickUpMsg : MessageBase
+	public class RequestObjectPickUpMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 1;
 		public uint requestId;
@@ -29,7 +29,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class PickUpSucceededMsg : MessageBase
+	public class ObjectPickUpSucceededMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 2;
 		public uint requestId;
@@ -37,7 +37,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class PickUpFailedMsg : MessageBase
+	public class ObjectPickUpFailedMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 3;
 		public uint requestId;
@@ -45,7 +45,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class RequestPutDownMsg : MessageBase
+	public class RequestObjectPutDownMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 4;
 		public uint requestId;
@@ -54,7 +54,7 @@ namespace NetworkRequest
 		public uint containerNetId;
 	}
 
-	public class PutDownSucceededMsg : MessageBase
+	public class ObjectPutDownSucceededMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 5;
 		public uint requestId;
@@ -63,7 +63,7 @@ namespace NetworkRequest
 		public uint containerNetId;
 	}
 
-	public class PutDownFailedMsg : MessageBase
+	public class ObjectPutDownFailedMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 6;
 		public uint requestId;
@@ -72,7 +72,7 @@ namespace NetworkRequest
 		public uint containerNetId;
 	}
 
-	public class RequestGetMsg : MessageBase
+	public class RequestContainerGetMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 7;
 		public uint requestId;
@@ -80,7 +80,7 @@ namespace NetworkRequest
 		public uint containerNetId;
 	}
 
-	public class GetSucceededMsg : MessageBase
+	public class ContainerGetSucceededMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 8;
 		public uint requestId;
@@ -89,7 +89,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class GetFailedMsg : MessageBase
+	public class ContainerGetFailedMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 9;
 		public uint requestId;
@@ -97,7 +97,7 @@ namespace NetworkRequest
 		public uint containerNetId;
 	}
 
-	public class RequestPutMsg : MessageBase
+	public class RequestContainerPutMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 10;
 		public uint requestId;
@@ -106,7 +106,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class PutSucceededMsg : MessageBase
+	public class ContainerPutSucceededMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 11;
 		public uint requestId;
@@ -115,7 +115,7 @@ namespace NetworkRequest
 		public uint objNetId;
 	}
 
-	public class PutFailedMsg : MessageBase
+	public class ContainerPutFailedMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 12;
 		public uint requestId;
