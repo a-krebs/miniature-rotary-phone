@@ -128,9 +128,7 @@ public class NetworkRequestService : NetworkBehaviour
 
 			if (allow)
 			{
-				puo.beingCarried = true;
-				objInstance.transform.position = playerInstance.transform.position;
-				objInstance.transform.parent = playerInstance.transform;
+				puo.PickUp(playerInstance.transform, GetNoOpHandler());
 
 				PickUpSucceededMsg response = new PickUpSucceededMsg();
 				response.requestId = request.requestId;
@@ -222,7 +220,7 @@ public class NetworkRequestService : NetworkBehaviour
 				if (containerInstance != null)
 				{
 					try {
-						containerInstance.Put(puo, delegate (bool success){});
+						containerInstance.Put(puo, GetNoOpHandler());
 					} catch {
 						Debug.Log("containerInstance.Put(...) failed.");
 						putOnGround = true;
@@ -292,7 +290,7 @@ public class NetworkRequestService : NetworkBehaviour
 			containerInstance = slot;
 		}
 
-		PickUpObject puo = containerInstance.Get(playerInstance.transform, delegate (bool success){});
+		PickUpObject puo = containerInstance.Get(playerInstance.transform, GetNoOpHandler());
 
 		if (puo != null)
 		{
@@ -386,6 +384,12 @@ public class NetworkRequestService : NetworkBehaviour
 		uint next = m_nextRequestId;
 		m_nextRequestId++;
 		return next;
+	}
+
+	[Server]
+	private NetworkRequest.Result GetNoOpHandler()
+	{
+		return delegate (bool success){};
 	}
 
 	public static NetworkRequestService Instance()
