@@ -172,7 +172,12 @@ public class PickUpObject : NetworkBehaviour
 		if (parent != null) {
 			transform.position = parent.position;
 		} else {
-			// TODO set on ground
+			GameObject ground = GameObject.FindWithTag("EdgeCollider");
+			// this relies on first BoxCollider2D component being the 'floor'
+			Bounds bounds = ground.GetComponent<BoxCollider2D>().bounds;
+			Vector3 closest = bounds.ClosestPoint(new Vector3(transform.position.x, transform.position.y, 0));
+			// add the size of the floor collider to raise the object off of the ground slightly
+			transform.position = new Vector2(transform.position.x, closest.y + bounds.size.y);
 		}
 		transform.parent = parent;
 	}
