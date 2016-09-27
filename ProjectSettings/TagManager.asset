@@ -12,6 +12,7 @@ TagManager:
   - ScoreManager
   - NetworkRequestService
   - BoxContainer
+  - EdgeCollider
   layers:
   - Default
   - TransparentFX

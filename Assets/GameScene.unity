@@ -3205,8 +3205,8 @@ GameObject:
   - 61: {fileID: 1646799450}
   - 61: {fileID: 1646799449}
   m_Layer: 8
-  m_Name: EdgeCollider
-  m_TagString: Untagged
+  m_Name: Edge and Ground Collider
+  m_TagString: EdgeCollider
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
