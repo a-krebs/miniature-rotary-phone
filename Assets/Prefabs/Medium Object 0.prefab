@@ -93,7 +93,7 @@ MonoBehaviour:
     i14: 232
     i15: 109
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  m_LocalPlayerAuthority: 0
 --- !u!114 &11470488
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -126,7 +126,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: 1
-  selected: 0
   beingCarried: 0
 --- !u!212 &21261520
 SpriteRenderer:

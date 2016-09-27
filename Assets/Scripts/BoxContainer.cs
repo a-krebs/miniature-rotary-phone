@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Collections;
 
-public class Slot : NetworkBehaviour, IContainer {
-	public PickUpObject.Size size;
-	
+/// An IContainer that can hold an unlimited number of PickUpObjects.
+public class BoxContainer : NetworkBehaviour, IContainer
+{
 	public int Count
 	{
 		get
@@ -16,7 +17,7 @@ public class Slot : NetworkBehaviour, IContainer {
 	{
 		get
 		{
-			return 1;
+			return int.MaxValue;
 		}
 	}
 
@@ -24,10 +25,12 @@ public class Slot : NetworkBehaviour, IContainer {
 	{
 		if (Count < 1)
 		{
-			Debug.Log("Slot empty.");
+			Debug.Log("BoxContainer empty.");
 			return null;
 		}
+
 		GameObject child = transform.GetChild(0).gameObject;
+		child.GetComponent<SpriteRenderer>().enabled = true;
 		PickUpObject puo = child.GetComponent<PickUpObject>();
 		puo.UpdateParent(parent, true);
 		return puo;
@@ -62,11 +65,6 @@ public class Slot : NetworkBehaviour, IContainer {
 			Debug.Log("Slot not empty.");
 			throw new System.MemberAccessException();
 		}
-		if (obj.size != size)
-		{
-			Debug.Log("Slot and object have different sizes.");
-			throw new System.MemberAccessException();
-		}
 		obj.UpdateParent(transform, false);
 	}
 
@@ -79,6 +77,7 @@ public class Slot : NetworkBehaviour, IContainer {
 			PutChild(obj);
 			handler(true);
 		} else if (isClient) {
+			// TODO undo?
 			PutChild(obj);
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			NetworkInstanceId objNetId = obj.GetComponent<NetworkIdentity>().netId;
@@ -87,6 +86,17 @@ public class Slot : NetworkBehaviour, IContainer {
 		} else {
 			Debug.LogError("BoxContainer Put(...) called with invalid state.");
 			throw new System.Exception();
+		}
+	}
+
+	void Update() {
+		for(int i = 0; i < transform.childCount; ++i) {
+			GameObject obj = transform.GetChild(i).gameObject;
+			// special case for Cursor
+			if (obj.tag != "Cursor")
+			{
+				obj.GetComponent<SpriteRenderer>().enabled = false;
+			}
 		}
 	}
 }

@@ -60,7 +60,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: 0
-  selected: 0
   beingCarried: 0
 --- !u!114 &11413466
 MonoBehaviour:
@@ -127,7 +126,7 @@ MonoBehaviour:
     i14: 128
     i15: 255
   m_ServerOnly: 0
-  m_LocalPlayerAuthority: 1
+  m_LocalPlayerAuthority: 0
 --- !u!212 &21209930
 SpriteRenderer:
   m_ObjectHideFlags: 1

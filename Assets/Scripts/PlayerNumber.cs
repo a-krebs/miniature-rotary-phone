@@ -53,16 +53,11 @@ public class PlayerNumber : NetworkBehaviour {
 	[Server]
 	private void UpdatePlayerNumber () {
 		Debug.Log ("PlayerNumber UpdatePlayerNumber.");
-		GameObject obj = GameObject.FindWithTag("PlayerNumberManager");
-		if( obj == null ) {
-			Debug.Log ("Failed to get PlayerNumberManager.");
-		}
-		PlayerNumberManager manager = obj.GetComponent<PlayerNumberManager>();
-		playerNum = manager.GetPlayerNumber( netId );
+		PlayerNumberManager manager = PlayerNumberManager.GetServerPlayerNumberManager();
+		playerNum = manager.GetPlayerNumber( netId, connectionToClient );
 		Debug.Log ("Updated player number. NetId: " + netId + ", PlayerNum: " + playerNum );
 	}
 
-	[Client]
 	public static PlayerNumber GetLocalPlayerNumber() {
 		PlayerNumber num = GetLocalPlayerGameObject().GetComponent<PlayerNumber>();
 		if (num == null) {
@@ -72,7 +67,6 @@ public class PlayerNumber : NetworkBehaviour {
 		return num;
 	}
 
-	[Client]
 	public static GameObject GetLocalPlayerGameObject() {
 		GameObject player = GameObject.FindWithTag ("LocalPlayer");
 		if (player == null) {
