@@ -40,10 +40,10 @@ public class PickUpObject : NetworkBehaviour
 
 		if (oldParent != null) {
 			GameObject obj = oldParent.gameObject;
-			if (obj.GetComponent<Slot>() != null) {
+			if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
 				OnPickedUp (this.gameObject, obj);
 			}
-		} else {
+		} else if (OnPickedUp != null) {
 			OnPickedUp (this.gameObject, null);
 		}
 	}
@@ -107,10 +107,12 @@ public class PickUpObject : NetworkBehaviour
 			UpdateParent(null, false);
 		}
 
-		if (container != null && container.GetComponent<Slot>() != null) {
-			OnPickedUp (this.gameObject, container);
-		} else {
-			OnPlaced (this.gameObject, null);
+		if (OnPlaced != null) {
+			if (container != null && container.GetComponent<Slot>() != null) {
+				OnPlaced (this.gameObject, container);
+			} else {
+				OnPlaced (this.gameObject, null);
+			}
 		}
 	}
 
