@@ -12,9 +12,9 @@ public class PickUpObject : NetworkBehaviour
 	public delegate void Placed(GameObject obj, GameObject slot);
 	public delegate void PickedUp(GameObject obj, GameObject slot);
 
-	/// Called when PickUpObject is set down. Param 'slot' might be null
-	/// if object is set on ground or into box.
-	public static event Placed OnPlaced;
+    /// Called when PickUpObject is set down. Param 'slot' might be null
+    /// if object is set on ground or into box.
+    public static event Placed OnPlaced;
 
 	/// Called when PickUpObject is picked up. Param 'slot' might be null
 	/// if object is picked up from the ground or a box.
@@ -26,8 +26,9 @@ public class PickUpObject : NetworkBehaviour
 	[SyncVar]
 	public bool beingCarried = false;
 
-	/// Actually pick up the PickUpObject, assigning the new parent.
-	private void PickUpInternal(Transform parent)
+
+    /// Actually pick up the PickUpObject, assigning the new parent.
+    private void PickUpInternal(Transform parent)
 	{
 		if (beingCarried) {
 			Debug.Log("Object is already being carried.");
@@ -42,7 +43,7 @@ public class PickUpObject : NetworkBehaviour
 			GameObject obj = oldParent.gameObject;
 			if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
 				OnPickedUp (this.gameObject, obj);
-			}
+            }
 		} else if (OnPickedUp != null) {
 			OnPickedUp (this.gameObject, null);
 		}
@@ -141,8 +142,7 @@ public class PickUpObject : NetworkBehaviour
 			handler(true);
 		} else if (isClient) {
 			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-
-			Transform previousParent = transform.parent;
+            Transform previousParent = transform.parent;
 			Vector2 previousPosition = transform.position;
 			Result internalHandler = delegate (bool success)
 				{
@@ -169,7 +169,7 @@ public class PickUpObject : NetworkBehaviour
 	public void UpdateParent(Transform parent, bool beingCarried)
 	{
 		this.beingCarried = beingCarried;
-		if (parent != null) {
+        if (parent != null) {
 			transform.position = parent.position;
 		} else {
 			GameObject ground = GameObject.FindWithTag("EdgeCollider");
