@@ -29,16 +29,38 @@ public class Score : NetworkBehaviour {
 	private void PickUpObjectPlaced( GameObject obj, GameObject slot)
 	{
 		Debug.Log ("Object placed down!");
-		score += 50;
+
+		if (slot == null) {
+			return;
+		}
+
+		Slot s = slot.GetComponent<Slot>();
+
+		if (s.goodFor == Slot.GoodFor.Both) {
+			score += 20;
+		} else {
+			score += 10;
+		}
+
+		Debug.Log("Score: " + score);
 	}
 
 	private void PickUpObjectPickedUp( GameObject obj, GameObject slot)
 	{
-		if (slot == null)
-		{
+		Debug.Log ("Object picked up!");
+
+		if (slot == null) {
 			return;
 		}
-		Debug.Log ("Object picked up!");
-		score -= 50;
+
+		Slot s = slot.GetComponent<Slot>();
+
+		if (s.goodFor == Slot.GoodFor.Both) {
+			score -= 20;
+		} else {
+			score -= 10;
+		}
+
+		Debug.Log("Score: " + score);
 	}
 }
