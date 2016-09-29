@@ -2,7 +2,11 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class Slot : NetworkBehaviour, IContainer {
+
+	public enum GoodFor { Player1, Player2, Both, None };
+
 	public PickUpObject.Size size;
+	public GoodFor goodFor;
 	
 	public int Count
 	{
@@ -87,6 +91,23 @@ public class Slot : NetworkBehaviour, IContainer {
 		} else {
 			Debug.LogError("BoxContainer Put(...) called with invalid state.");
 			throw new System.Exception();
+		}
+	}
+
+	void Update() {
+		SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+		if (goodFor == GoodFor.Player1) {
+			// blue
+			renderer.color = new Color(141f/255, 226f/255, 224f/255, 160f/255);
+		} else if (goodFor == GoodFor.Player2) {
+			// yellow
+			renderer.color = new Color(240f/255, 236f/255, 120f/255, 160f/255);
+		} else if (goodFor == GoodFor.Both) {
+			// green
+			renderer.color = new Color(0f/255, 203f/255, 20f/255, 160f/255);
+		} else if (goodFor == GoodFor.None) {
+			// white
+			renderer.color = new Color(1f, 1f, 1f, 160f/255);
 		}
 	}
 }
