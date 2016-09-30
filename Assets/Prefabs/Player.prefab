@@ -108,10 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8abc988f3189c4e5ea31921ac522cd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sprGal: {fileID: 21300000, guid: 742fb7c77b22347a1be9e82690c91745, type: 3}
-  sprDude: {fileID: 21300000, guid: 5b7cf6a0210aa466a843339b9681d6e2, type: 3}
+  sprGal: {fileID: 21300000, guid: 258a596ab08576c4ca4ff3ea1eb0a17c, type: 3}
+  sprDude: {fileID: 21300000, guid: 8cfbb540555f2194c8fc5f5bd2663997, type: 3}
   sprTeeth: {fileID: 21300000, guid: 4c94c37fa2f604decb7387661a13cafe, type: 3}
-  sprBurb: {fileID: 21300000, guid: 6ecfb882113b444bc9c821017a72f744, type: 3}
+  sprBurb: {fileID: 21300000, guid: 0713214433fd8cf4787a70bdbc76d557, type: 3}
   placeholder: {fileID: 21300000, guid: deddef3b0e44345aa9ee279c1b319539, type: 3}
   greenBackground: {fileID: 21300000, guid: dad3f48efc4d01841be0412444d104f7, type: 3}
   pinkBackground: {fileID: 21300000, guid: b742ad894d444fb4d8de53ce3e761844, type: 3}

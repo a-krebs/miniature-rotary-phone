@@ -35,7 +35,7 @@ public class CharacterSprite : NetworkBehaviour {
 		} else if ( isLocalPlayer && IsPlayerOne() ) {
             background.sprite = pinkBackground;
 			rend.sprite = sprGal;
-			animator.runtimeAnimatorController = Resources.Load("Animation/gal") as RuntimeAnimatorController;
+			animator.runtimeAnimatorController = Resources.Load("Animation/burb") as RuntimeAnimatorController;
 		} else if ( isLocalPlayer && IsPlayerTwo()) {
             background.sprite = greenBackground;
 			rend.sprite = sprDude;

@@ -9,7 +9,14 @@ public class NetworkManagerStartup : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         manager = GetComponent<NetworkManager>();
-        manager.StartHost();
+        if (manager.isNetworkActive){
+            manager.StartClient();
+        }
+        else
+        {
+            manager.StartHost();
+        }
+        
 	}
 	
 }
