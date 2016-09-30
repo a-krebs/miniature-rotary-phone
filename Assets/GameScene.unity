@@ -421,12 +421,12 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 204295518}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.04, y: 5.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_Father: {fileID: 1646799452}
+  m_RootOrder: 0
 --- !u!114 &204295521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1286,7 +1286,7 @@ Transform:
   - {fileID: 440119799}
   - {fileID: 751329905}
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 13
 --- !u!114 &628181801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3263,7 +3263,8 @@ Transform:
   m_LocalPosition: {x: -0.04, y: -5.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_Children: []
+  m_Children:
+  - {fileID: 204295520}
   m_Father: {fileID: 0}
   m_RootOrder: 12
 --- !u!1 &1683138850
@@ -3512,7 +3513,6 @@ GameObject:
   - 4: {fileID: 1909707929}
   - 114: {fileID: 1909707928}
   - 114: {fileID: 1909707927}
-  - 114: {fileID: 1909707930}
   m_Layer: 0
   m_Name: Network Manager
   m_TagString: Untagged
@@ -3526,7 +3526,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1909707926}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 227461547, guid: 870353891bb340e2b2a9c8707e7419ba, type: 3}
   m_Name: 
@@ -3613,18 +3613,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 8
---- !u!114 &1909707930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1909707926}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46fc9ed044566e746ac5adee606895cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
 --- !u!1 &1912425590
 GameObject:
   m_ObjectHideFlags: 0
