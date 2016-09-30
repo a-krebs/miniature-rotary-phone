@@ -10,8 +10,6 @@ public class CharacterMovement : NetworkBehaviour
 	//Variable to track how much movement is needed from input
 	private float movePlayerVector;
 
-	// For determining which way the player is currently facing.
-	private bool facingRight;
 
 	// Speed modifier for player movement
 	public float speed = 4.0f;
@@ -49,27 +47,10 @@ public class CharacterMovement : NetworkBehaviour
 
 		playerRigidBody2D.velocity = new Vector2(movePlayerVector * speed, playerRigidBody2D.velocity.y);
 
-		anim.SetFloat("speed", Mathf.Abs(movePlayerVector));
+		anim.SetFloat("speed", movePlayerVector);
 
-		if (movePlayerVector > 0 && !facingRight)
-		{
-			Flip();
-		}
-		else if (movePlayerVector < 0 && facingRight)
-		{
-			Flip();
-		}
+
 	}
 
-	void Flip()
-	{
-		// Switch the way the player is labeled as facing.
-		facingRight = !facingRight;
-
-		// Multiply the player's x local scale by -1.
-		Vector3 theScale = transform.localScale;
-		theScale.x *= -1;
-		transform.localScale = theScale;
-	}
 }
 
