@@ -175,8 +175,10 @@ public class PickUpObject : NetworkBehaviour
 	{
 		SpriteRenderer rend = GetComponent<SpriteRenderer>();
 
-		if (newParent != null && (newParent.gameObject.tag == "LocalPlayer" || newParent.gameObject.tag == "Player")) {
-			rend.sortingOrder = 11; // magic numbers yaaay (this is 1 higher than the player prefab's sort order)
+		if (newParent != null && newParent.gameObject.tag == "LocalPlayer") {
+			rend.sortingOrder = 13; // magic numbers yaaay (this is 1 higher than the LocalPlayer's sort order (see CharacterSprite.cs))
+		} else if (newParent != null && newParent.gameObject.tag == "Player") {
+			rend.sortingOrder = 11; // this is one higher than the Player prefab's sort order
 		} else {
 			rend.sortingOrder = 5; // back to PickUpObject prefab default sort order
 		}

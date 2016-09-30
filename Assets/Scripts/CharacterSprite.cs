@@ -33,12 +33,14 @@ public class CharacterSprite : NetworkBehaviour {
 			rend.sprite = sprTeeth;
 			animator.runtimeAnimatorController = Resources.Load("Animation/teethlegs") as RuntimeAnimatorController;
 		} else if ( isLocalPlayer && IsPlayerOne() ) {
-            background.sprite = pinkBackground;
+            		background.sprite = pinkBackground;
 			rend.sprite = sprGal;
+			rend.sortingOrder = 12;
 			animator.runtimeAnimatorController = Resources.Load("Animation/gal") as RuntimeAnimatorController;
 		} else if ( isLocalPlayer && IsPlayerTwo()) {
-            background.sprite = greenBackground;
+            		background.sprite = greenBackground;
 			rend.sprite = sprDude;
+			rend.sortingOrder = 12;
 			animator.runtimeAnimatorController = Resources.Load("Animation/dude") as RuntimeAnimatorController;
 		} else {
 			rend.sprite = placeholder;
