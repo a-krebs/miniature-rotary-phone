@@ -82,7 +82,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 					return;
 				}
 				ShowCursor (selected.transform);
-			} else if (Input.GetMouseButtonDown(0)) {
+			} else if (Input.GetKeyDown(KeyCode.Space)) {
 				Debug.Log("Going to pick up object.");
 				if (selected == null) {
 					Debug.Log("No object selected.");
@@ -108,7 +108,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 					return;
 				}
 			}
-		} else if (Input.GetMouseButtonDown(0)) {
+		} else if (Input.GetKeyDown(KeyCode.Space)) {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
