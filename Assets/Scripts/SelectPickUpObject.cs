@@ -142,11 +142,24 @@ public class SelectPickUpObject : NetworkBehaviour {
 			ShowCursor (selected.transform);
 		}
 
-		if (Input.GetKeyDown(KeyCode.Space) && selected != null) {
+		if (Input.GetKeyDown (KeyCode.E) && selected != null) {
+			Debug.Log("Selecting next available container.");
+			int next = availableContainers.IndexOf (selected) + 1;
+			if( next == availableContainers.Count )
+			{
+				next = 0;
+			}
+			if (!UpdateSelected (availableContainers[next]))
+			{
+				return;
+			}
+			ShowCursor (selected.transform);
+		} else if (Input.GetKeyDown(KeyCode.Space) && selected != null) {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
 			if (NotValidSlot(puo, selected)) {
+				Debug.Log("Slot has wrong size.");
 				return;
 			}
 			GameObject carrying = this.carried;
