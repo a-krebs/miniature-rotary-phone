@@ -34,18 +34,7 @@ public class PickUpObject : NetworkBehaviour
 			throw new System.Exception();
 		}
 
-		Transform oldParent = transform.parent;
-
 		UpdateParent(parent, true);
-
-		if (oldParent != null) {
-			GameObject obj = oldParent.gameObject;
-			if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
-				OnPickedUp (this.gameObject, obj);
-			}
-		} else if (OnPickedUp != null) {
-			OnPickedUp (this.gameObject, null);
-		}
 	}
 
 	/// Pick up the object.
@@ -106,14 +95,6 @@ public class PickUpObject : NetworkBehaviour
 		} else {
 			UpdateParent(null, false);
 		}
-
-		if (OnPlaced != null) {
-			if (container != null && container.GetComponent<Slot>() != null) {
-				OnPlaced (this.gameObject, container);
-			} else {
-				OnPlaced (this.gameObject, null);
-			}
-		}
 	}
 
 	/// Put down the object.
@@ -169,6 +150,11 @@ public class PickUpObject : NetworkBehaviour
 	public void UpdateParent(Transform parent, bool beingCarried)
 	{
 		this.beingCarried = beingCarried;
+
+		Transform oldParent = transform.parent;
+
+		UpdateSortingOrder(parent);
+
 		if (parent != null) {
 			transform.position = parent.position;
 		} else {
@@ -180,6 +166,46 @@ public class PickUpObject : NetworkBehaviour
 			transform.position = new Vector2(transform.position.x, closest.y + bounds.size.y);
 		}
 		transform.parent = parent;
+
+		// fire events last so that event consumers have the current state of the PickUpObject
+		FireEvents(oldParent, parent);
+	}
+
+	private void UpdateSortingOrder(Transform newParent)
+	{
+		SpriteRenderer rend = GetComponent<SpriteRenderer>();
+
+		if (newParent != null && (newParent.gameObject.tag == "LocalPlayer" || newParent.gameObject.tag == "Player")) {
+			rend.sortingOrder = 11; // magic numbers yaaay (this is 1 higher than the player prefab's sort order)
+		} else {
+			rend.sortingOrder = 5; // back to PickUpObject prefab default sort order
+		}
+	}
+
+	private void FireEvents(Transform oldParent, Transform newParent)
+	{
+		GameObject newParentObj = newParent != null ? newParent.gameObject : null;
+
+		if (newParentObj != null && (newParentObj.tag == "LocalPlayer" || newParentObj.tag == "Player")) {
+			// OnPickedUp
+			if (oldParent != null) {
+				GameObject obj = oldParent.gameObject;
+				if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
+					OnPickedUp (this.gameObject, obj);
+				}
+			} else if (OnPickedUp != null) {
+				OnPickedUp (this.gameObject, null);
+			}
+		} else {
+			// OnPlaced
+			if (OnPlaced != null) {
+				if (newParentObj != null && newParentObj.GetComponent<Slot>() != null) {
+					OnPlaced (this.gameObject, newParentObj);
+				} else {
+					OnPlaced (this.gameObject, null);
+				}
+			}
+		}
 	}
 
 	/// Utility method to get the IContainer from different GameObjects.
