@@ -146,6 +146,9 @@ public class SelectPickUpObject : NetworkBehaviour {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
+			if (NotValidSlot(puo, selected)) {
+				return;
+			}
 			GameObject carrying = this.carried;
 			carried = null;
 			// slot might be null, but that's OK
@@ -276,5 +279,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 		} else {
 			return null;
 		}
+	}
+
+	/// Returns true if the 'container' is a slot with the wrong size.
+	/// Returns false otherwise.
+	private bool NotValidSlot(PickUpObject puo, GameObject container) {
+		if (container != null)
+		{
+			Slot slot = container.GetComponent<Slot>();
+			if (slot != null && puo.size != slot.size)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
