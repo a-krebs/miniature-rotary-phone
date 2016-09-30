@@ -86,7 +86,7 @@ public class PickUpObject : NetworkBehaviour
 	private void PutDownInternal(GameObject container)
 	{
 		if (container != null) {
-			IContainer c = GetIContainer(container);
+			IContainer c = IContainerUtils.GetIContainer(container);
 			if (c.Count >= c.Capacity) {
 				Debug.Log("Container full.");
 				throw new System.Exception();
@@ -206,27 +206,5 @@ public class PickUpObject : NetworkBehaviour
 				}
 			}
 		}
-	}
-
-	/// Utility method to get the IContainer from different GameObjects.
-	///
-	/// Throws NotImplementedException for unknown GameObject tags.
-	public static IContainer GetIContainer(GameObject containerGameObj)
-	{
-		IContainer containerInstance = null;
-		if (containerGameObj.tag == "BoxContainer")
-		{
-			Debug.Log("Put into BoxContainer.");
-			BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
-			containerInstance = box;
-		} else if (containerGameObj.tag == "ObjectSlot") {
-			Debug.Log("Put into ObjectSlot.");
-			Slot slot = containerGameObj.GetComponent<Slot>();
-			containerInstance = slot;
-		} else {
-			throw new System.NotImplementedException();
-		}
-
-		return containerInstance;
 	}
 }

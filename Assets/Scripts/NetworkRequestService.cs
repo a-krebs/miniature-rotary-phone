@@ -367,7 +367,7 @@ public class NetworkRequestService : NetworkBehaviour
 			if (allow && container.Value != 0)
 			{
 				GameObject containerGameObj = NetworkServer.FindLocalObject(container);
-				containerInstance = PickUpObject.GetIContainer(containerGameObj);
+				containerInstance = IContainerUtils.GetIContainer(containerGameObj);
 
 				if (containerInstance == null)
 				{

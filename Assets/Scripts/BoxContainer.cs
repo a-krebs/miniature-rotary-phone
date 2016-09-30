@@ -9,7 +9,7 @@ public class BoxContainer : NetworkBehaviour, IContainer
 	{
 		get
 		{
-			return transform.childCount;
+			return IContainerUtils.GetChildCount(transform);
 		}
 	}
 

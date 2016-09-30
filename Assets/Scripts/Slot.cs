@@ -12,7 +12,7 @@ public class Slot : NetworkBehaviour, IContainer {
 	{
 		get
 		{
-			return transform.childCount;
+			return IContainerUtils.GetChildCount(transform);
 		}
 	}
 
