@@ -107,13 +107,14 @@ public class SelectPickUpObject : NetworkBehaviour {
 				carried = selected;
 				selected = null;
 				HideCursor();
-				puo.PickUp(transform, GetPickUpHandler());
+				puo.PickUp(transform, GetPickUpHandler(puo));
 				Debug.Log("Picked up object.");
 			} else if (selected.tag == "BoxContainer") {
 				IContainer container = selected.GetComponent<BoxContainer>();
+				GameObject cObj = selected;
 				selected = null;
 				HideCursor();
-				PickUpObject puo = container.Get(transform, GetGetHandler());
+				PickUpObject puo = container.Get(transform, GetGetHandler(cObj));
 				carried = (puo == null ? null : puo.gameObject);
 				Debug.Log("Picked up object.");
 			} else {
@@ -166,7 +167,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 			carried = null;
 			// slot might be null, but that's OK
 			try {
-				puo.PutDown(selected, GetPutDownHandler(carrying));
+				puo.PutDown(selected, GetPutDownHandler(carrying, selected));
 			} catch {
 				carried = carrying;
 			}
@@ -194,10 +195,15 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return valid;
 	}
 
-	private NetworkRequest.Result GetPickUpHandler() {
+	private NetworkRequest.Result GetPickUpHandler(PickUpObject puo) {
+		NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId objNetId    = puo.gameObject.GetComponent<NetworkIdentity>().netId;
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isServer && isClient) {
+						NetworkRequestService.Instance().NotifyObjectPickUp(playerNetId, objNetId);
+					}
 					return;
 				}
 
@@ -207,10 +213,20 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return handler;
 	}
 
-	private NetworkRequest.Result GetPutDownHandler(GameObject carrying) {
+	private NetworkRequest.Result GetPutDownHandler(GameObject carrying, GameObject container) {
+		NetworkInstanceId playerNetId    = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId objNetId       = carrying.GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
+		if (container != null ) {
+			containerNetId = container.GetComponent<NetworkIdentity>().netId;
+		}
+
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isClient && isServer) {
+						NetworkRequestService.Instance().NotifyObjectPutDown(playerNetId, objNetId, containerNetId);
+					}
 					return;
 				}
 
@@ -220,10 +236,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return handler;
 	}
 
-	private NetworkRequest.Result GetGetHandler() {
+	private NetworkRequest.Result GetGetHandler(GameObject container) {
+		NetworkInstanceId playerNetId    = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
+		if (container != null ) {
+			containerNetId = container.GetComponent<NetworkIdentity>().netId;
+		}
+
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isClient && isServer) {
+						NetworkRequestService.Instance().NotifyContainerGet(playerNetId, containerNetId);
+					}
 					return;
 				}
 
