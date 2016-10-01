@@ -634,10 +634,12 @@ public class NetworkRequestService : NetworkBehaviour
 
 		GameObject player    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
 		GameObject container = ClientScene.FindLocalObject(new NetworkInstanceId(happened.containerNetId));
-		GameObject obj       = ClientScene.FindLocalObject(new NetworkInstanceId(happened.objNetId));
 
-		obj.GetComponent<PickUpObject>().UpdateParent(player.transform, true);
-		obj.GetComponent<SpriteRenderer>().enabled = true;
+		// TODO encapsulate this within IContainer
+		GameObject child = container.transform.GetChild(0).gameObject;
+		child.GetComponent<SpriteRenderer>().enabled = true;
+		PickUpObject puo = child.GetComponent<PickUpObject>();
+		puo.UpdateParent(player.transform, true);
 	}
 
 	[Client]
