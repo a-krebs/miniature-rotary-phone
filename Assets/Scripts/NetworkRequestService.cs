@@ -576,6 +576,10 @@ public class NetworkRequestService : NetworkBehaviour
 	[Client]
 	private void OnObjectPickUpHappened(NetworkMessage msg)
 	{
+		if (isServer) {
+			return;
+		}
+
 		ObjectPickUpHappenedMsg happened = msg.ReadMessage<ObjectPickUpHappenedMsg>();
 
 		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
@@ -593,6 +597,10 @@ public class NetworkRequestService : NetworkBehaviour
 	[Client]
 	private void OnObjectPutDownHappened(NetworkMessage msg)
 	{
+		if (isServer) {
+			return;
+		}
+
 		ObjectPutDownHappenedMsg happened = msg.ReadMessage<ObjectPutDownHappenedMsg>();
 
 		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
@@ -613,6 +621,10 @@ public class NetworkRequestService : NetworkBehaviour
 	[Client]
 	private void OnContainerGetHappened(NetworkMessage msg)
 	{
+		if (isServer) {
+			return;
+		}
+
 		ContainerGetHappenedMsg happened = msg.ReadMessage<ContainerGetHappenedMsg>();
 
 		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
@@ -632,6 +644,10 @@ public class NetworkRequestService : NetworkBehaviour
 	[Client]
 	private void OnContainerPutHappened(NetworkMessage msg)
 	{
+		if (isServer) {
+			return;
+		}
+
 		ContainerPutHappenedMsg happened = msg.ReadMessage<ContainerPutHappenedMsg>();
 
 		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
