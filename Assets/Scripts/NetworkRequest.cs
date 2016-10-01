@@ -25,7 +25,12 @@ namespace NetworkRequest
 		}
 	}
 
-	// TODO combine Succeeded and Failed messages into one type, with `bool success` member?
+	////////////////////////////////////////////////////////////////////////
+	/// The following are requests with Succeeded and Failed responses.
+	///
+	/// NetworkRequestService allows requesting these actions from the client.
+	////////////////////////////////////////////////////////////////////////
+
 	public class RequestObjectPickUpMsg : MessageBase
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 1;
@@ -127,5 +132,43 @@ namespace NetworkRequest
 		public uint playerNetId;
 		public uint containerNetId;
 		public uint objNetId;
+	}
+
+	////////////////////////////////////////////////////////////////////////
+	/// The following are action notifications.
+	///
+	/// NetworkRequestService handles these on the clients and updates object
+	/// states as required.
+	////////////////////////////////////////////////////////////////////////
+
+	public class ObjectPickUpHappenedMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 13;
+		public uint playerNetId;
+		public uint objNetId;
+	}
+
+	public class ObjectPutDownHappenedMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 14;
+		public uint playerNetId;
+		public uint objNetId;
+		public uint containerNetId;
+	}
+
+	public class ContainerGetHappenedMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 15;
+		public uint playerNetId;
+		public uint objNetId;
+		public uint containerNetId;
+	}
+
+	public class ContainerPutHappenedMsg : MessageBase
+	{
+		public static short Type = UnityEngine.Networking.MsgType.Highest + 16;
+		public uint playerNetId;
+		public uint objNetId;
+		public uint containerNetId;
 	}
 }
