@@ -176,11 +176,10 @@ public class NetworkRequestService : NetworkBehaviour
 	}
 
 	[Server]
-	public void NotifyContainerGet(NetworkInstanceId player, NetworkInstanceId obj, NetworkInstanceId container)
+	public void NotifyContainerGet(NetworkInstanceId player, NetworkInstanceId container)
 	{
 		ContainerGetHappenedMsg msg = new ContainerGetHappenedMsg();
 		msg.playerNetId = player.Value;
-		msg.objNetId = obj.Value;
 		msg.containerNetId = container.Value;
 
 		Debug.Log("Notifying clients of ContainerGet.");
@@ -367,7 +366,7 @@ public class NetworkRequestService : NetworkBehaviour
 				NetworkServer.SendToClient(connection.connectionId, ContainerGetSucceededMsg.Type, response);
 				Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
 
-				NotifyContainerGet(player, obj, container);
+				NotifyContainerGet(player, container);
 			} else {
 				SendContainerGetFailedMsg(request, connection);
 				Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);

@@ -160,7 +160,6 @@ namespace NetworkRequest
 	{
 		public static short Type = UnityEngine.Networking.MsgType.Highest + 15;
 		public uint playerNetId;
-		public uint objNetId;
 		public uint containerNetId;
 	}
 
