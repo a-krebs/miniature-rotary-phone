@@ -54,8 +54,6 @@ public class PickUpObject : NetworkBehaviour
 		if (isClient && isServer) {
 			PickUpInternal(parent);
 			handler(true);
-			NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-			NetworkRequestService.Instance().NotifyObjectPickUp(playerNetId, netId);
 		} else if (isServer) {
 			PickUpInternal(parent);
 			handler(true);
@@ -116,8 +114,6 @@ public class PickUpObject : NetworkBehaviour
 		if (isClient && isServer) {
 			PutDownInternal(container);
 			handler(true);
-			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-			NetworkRequestService.Instance().NotifyObjectPutDown(player, netId, containerNetId);
 		} else if (isServer) {
 			PutDownInternal(container);
 			handler(true);
