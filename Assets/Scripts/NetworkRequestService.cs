@@ -233,6 +233,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.objNetId = request.objNetId;
 				NetworkServer.SendToClient(connection.connectionId, ObjectPickUpSucceededMsg.Type, response);
 				Debug.Log("PickUp Succeeded: player with netId " + player.Value + "picked up object with netId " + obj.Value);
+
+				NotifyObjectPickUp(player, obj);
 			} else {
 				SendObjectPickUpFailedMsg(request, connection);
 				Debug.Log("PickUp Failed: player with netId " + player.Value + "did not pickup object with netId " + obj.Value);
@@ -302,6 +304,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.containerNetId = request.containerNetId;
 				NetworkServer.SendToClient(connection.connectionId, ObjectPutDownSucceededMsg.Type, response);
 				Debug.Log("PutDown Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+
+				NotifyObjectPutDown(player, obj, container);
 			} else {
 				SendObjectPutDownFailedMsg(request, connection);
 				Debug.Log("PutDown Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);
@@ -362,6 +366,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.objNetId = obj.Value;
 				NetworkServer.SendToClient(connection.connectionId, ContainerGetSucceededMsg.Type, response);
 				Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
+
+				NotifyContainerGet(player, obj, container);
 			} else {
 				SendContainerGetFailedMsg(request, connection);
 				Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
@@ -441,6 +447,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.containerNetId = request.containerNetId;
 				NetworkServer.SendToClient(connection.connectionId, ContainerPutSucceededMsg.Type, response);
 				Debug.Log("Put Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+
+				NotifyContainerPut(player, obj, container);
 			} else {
 				SendContainerPutFailedMsg(request, connection);
 				Debug.Log("Put Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);

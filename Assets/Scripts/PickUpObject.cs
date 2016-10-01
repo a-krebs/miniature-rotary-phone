@@ -54,12 +54,12 @@ public class PickUpObject : NetworkBehaviour
 		if (isClient && isServer) {
 			PickUpInternal(parent);
 			handler(true);
+			NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().NotifyObjectPickUp(playerNetId, netId);
 		} else if (isServer) {
 			PickUpInternal(parent);
 			handler(true);
 		} else if (isClient) {
-			GameObject player = PlayerNumber.GetLocalPlayerGameObject();
-			NetworkInstanceId playerNetId = player.GetComponent<NetworkIdentity>().netId;
 			Transform previousParent = transform.parent;
 			Result internalHandler = delegate (bool success)
 				{
@@ -70,6 +70,8 @@ public class PickUpObject : NetworkBehaviour
 					}
 					handler(success);
 				};
+
+			NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			Debug.Log("Picking up PickUpObject, player with netId " + playerNetId + ", object with netId " + netId.Value);
 			PickUpInternal(parent);
 			NetworkRequestService.Instance().RequestObjectPickUp(playerNetId, netId, internalHandler);
@@ -114,11 +116,12 @@ public class PickUpObject : NetworkBehaviour
 		if (isClient && isServer) {
 			PutDownInternal(container);
 			handler(true);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().NotifyObjectPutDown(player, netId, containerNetId);
 		} else if (isServer) {
 			PutDownInternal(container);
 			handler(true);
 		} else if (isClient) {
-			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 
 			Transform previousParent = transform.parent;
 			Result internalHandler = delegate (bool success)
@@ -131,6 +134,7 @@ public class PickUpObject : NetworkBehaviour
 					handler(success);
 				};
 
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			Debug.Log("Putting down PickUpObject, player with netId " + player.Value + ", object with netId " + netId.Value + ", container netId: " + containerNetId.Value);
 			PutDownInternal(container);
 			NetworkRequestService.Instance().RequestObjectPutDown(player, netId, containerNetId, internalHandler);

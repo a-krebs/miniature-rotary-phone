@@ -42,6 +42,11 @@ public class Slot : NetworkBehaviour, IContainer {
 		if (isServer && isClient) {
 			PickUpObject child = GetChild(parent);
 			handler(child != null);
+			if (child != null) {
+				NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+				NetworkInstanceId childNetId = child.gameObject.GetComponent<NetworkIdentity>().netId;
+				NetworkRequestService.Instance().NotifyContainerGet(player, childNetId, netId);
+			}
 			return child;
 		} else if (isServer) {
 			PickUpObject child = GetChild(parent);
@@ -87,6 +92,9 @@ public class Slot : NetworkBehaviour, IContainer {
 		if (isServer && isClient) {
 			PutChild(obj);
 			handler(true);
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+			NetworkInstanceId objNetId = obj.gameObject.GetComponent<NetworkIdentity>().netId;
+			NetworkRequestService.Instance().NotifyContainerPut(player, objNetId, netId);
 		} else if (isServer) {
 			PutChild(obj);
 			handler(true);
