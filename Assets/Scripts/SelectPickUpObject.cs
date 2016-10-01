@@ -154,7 +154,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 				return;
 			}
 			ShowCursor (selected.transform);
-		} else if (Input.GetKeyDown(KeyCode.Space) && selected != null) {
+		} else if (Input.GetKeyDown(KeyCode.Space)) {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
