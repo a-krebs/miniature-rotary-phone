@@ -6,14 +6,12 @@ using SimpleJSON;
 public class NetworkManagerStartup : MonoBehaviour {
 
 	private NetworkManager manager;
-	private NetworkDiscovery discovery;
 	private JSONNode config;
 
 	// Use this for initialization
 	void Awake()
 	{
 		manager = GetComponent<NetworkManager>();
-		discovery = GetComponent<NetworkDiscovery>();
 		// this path is relative to the working directory
 		string text = System.IO.File.ReadAllText(@"network_config.json");
 		config = JSON.Parse(text);
@@ -25,7 +23,7 @@ public class NetworkManagerStartup : MonoBehaviour {
 		string address = config["server-address"].Value;
 		int port = config["server-port"].AsInt;
 
-		Debug.Log("NetworkDiscovery starting as " + role);
+		Debug.Log("NetworkManagerStartup starting as " + role);
 
 		manager.networkAddress = address;
 		manager.networkPort = port;
@@ -37,7 +35,7 @@ public class NetworkManagerStartup : MonoBehaviour {
 		} else if (role == "host") {
 			manager.StartHost();
 		} else {
-			Debug.Log("NetworkDiscovery config missing 'role'.");
+			Debug.Log("NetworkManagerStartup config missing 'role'.");
 		}
 	}
 }
