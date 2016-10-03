@@ -150,9 +150,14 @@ public class PickUpObject : NetworkBehaviour
 		Transform oldParent = transform.parent;
 
 		UpdateSortingOrder(parent);
+	
 
 		if (parent != null) {
-			transform.position = parent.position;
+			Vector3 position = parent.position;
+			position.y += 1.5f;
+			position.x += 0.5f;
+			transform.position = position;
+
 		} else {
 			GameObject ground = GameObject.FindWithTag("EdgeCollider");
 			// this relies on first BoxCollider2D component being the 'floor'
