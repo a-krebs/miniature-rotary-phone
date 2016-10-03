@@ -8,12 +8,16 @@ public class Score : NetworkBehaviour {
 
 	[SyncVar]
 	public int score;
-
+	float timeLeft = 10.0f;
+	public Text text;
+	public GameObject panelVis;
 	public Slider scoreSlider;                                 
 
 	void Start ()
 	{
 		score = 0;
+		panelVis.SetActive (false);
+
 	}
 
 	public override void OnStartServer()
@@ -26,9 +30,14 @@ public class Score : NetworkBehaviour {
 	{
 		scoreSlider.value = score;
 		if (score == 70){
-			NetworkManager.Shutdown ();
-			SceneManager.LoadScene(0); 
-			
+			panelVis.SetActive (true);
+			timeLeft -= Time.deltaTime;
+			text.text = "Restart in:" + Mathf.Round(timeLeft);
+			if(timeLeft < 0)
+			{
+				NetworkManager.Shutdown ();
+				SceneManager.LoadScene(0);
+			}
 		}
 	}
 
