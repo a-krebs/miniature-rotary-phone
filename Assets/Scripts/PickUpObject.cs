@@ -12,9 +12,9 @@ public class PickUpObject : NetworkBehaviour
 	public delegate void Placed(GameObject obj, GameObject slot);
 	public delegate void PickedUp(GameObject obj, GameObject slot);
 
-	/// Called when PickUpObject is set down. Param 'slot' might be null
-	/// if object is set on ground or into box.
-	public static event Placed OnPlaced;
+    /// Called when PickUpObject is set down. Param 'slot' might be null
+    /// if object is set on ground or into box.
+    public static event Placed OnPlaced;
 
 	/// Called when PickUpObject is picked up. Param 'slot' might be null
 	/// if object is picked up from the ground or a box.
@@ -26,8 +26,9 @@ public class PickUpObject : NetworkBehaviour
 	[SyncVar]
 	public bool beingCarried = false;
 
-	/// Actually pick up the PickUpObject, assigning the new parent.
-	private void PickUpInternal(Transform parent)
+
+    /// Actually pick up the PickUpObject, assigning the new parent.
+    private void PickUpInternal(Transform parent)
 	{
 		if (beingCarried) {
 			Debug.Log("Object is already being carried.");
@@ -35,6 +36,7 @@ public class PickUpObject : NetworkBehaviour
 		}
 
 		UpdateParent(parent, true);
+
 	}
 
 	/// Pick up the object.

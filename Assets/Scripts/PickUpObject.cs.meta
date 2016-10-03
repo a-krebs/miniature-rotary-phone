@@ -1,10 +1,12 @@
 fileFormatVersion: 2
 guid: 951b4a55791864343aa1674e3784d671
-timeCreated: 1469588981
+timeCreated: 1475024839
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - PickedUpSound: {fileID: 8300000, guid: fb2d54751c47c6042868d9c52fe4fef1, type: 3}
+  - PutDownSound: {fileID: 8300000, guid: d937c48ebd0b45e49bf596d5f81ff149, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

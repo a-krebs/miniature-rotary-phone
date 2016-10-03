@@ -4,10 +4,7 @@ using System.Collections;
 
 public class CharacterSprite : NetworkBehaviour {
 
-	public Sprite sprGal;
-	public Sprite sprDude;
-	public Sprite sprTeeth;
-	public Sprite sprBurb;
+
 	public Sprite placeholder;
     public Sprite greenBackground;
     public Sprite pinkBackground;
@@ -27,21 +24,22 @@ public class CharacterSprite : NetworkBehaviour {
 
 	void Update() {
 		if( !isLocalPlayer && IsPlayerOne() ) {
-			rend.sprite = sprBurb;
 			animator.runtimeAnimatorController = Resources.Load("Animation/burb") as RuntimeAnimatorController;
+
 		} else if ( !isLocalPlayer && IsPlayerTwo() ) {
-			rend.sprite = sprTeeth;
 			animator.runtimeAnimatorController = Resources.Load("Animation/teethlegs") as RuntimeAnimatorController;
+
 		} else if ( isLocalPlayer && IsPlayerOne() ) {
-            		background.sprite = pinkBackground;
-			rend.sprite = sprGal;
+      background.sprite = pinkBackground;
 			rend.sortingOrder = 12;
 			animator.runtimeAnimatorController = Resources.Load("Animation/gal") as RuntimeAnimatorController;
+
 		} else if ( isLocalPlayer && IsPlayerTwo()) {
-            		background.sprite = greenBackground;
-			rend.sprite = sprDude;
+
+      background.sprite = greenBackground;
 			rend.sortingOrder = 12;
 			animator.runtimeAnimatorController = Resources.Load("Animation/dude") as RuntimeAnimatorController;
+
 		} else {
 			rend.sprite = placeholder;
 		}
