@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d8238cc53530b64fbb7828c3d3bb591, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 240475670}
+  target: {fileID: 321178050}
   damping: 1
   lookAheadFactor: 3
   lookAheadReturnSpeed: 0.5
@@ -608,8 +608,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d928e4d40e409480488a7498db0a612b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trackOne: {fileID: 8300000, guid: 5433a46ca565c4b6cb93471074e4e102, type: 3}
-  trackTwo: {fileID: 8300000, guid: 91ef0e927bdb844b8bce8d22c76cb828, type: 3}
+  trackOne: {fileID: 0}
+  trackTwo: {fileID: 0}
 --- !u!1001 &240475669
 Prefab:
   m_ObjectHideFlags: 0
@@ -659,10 +659,6 @@ Prefab:
     - {fileID: 5000000, guid: 18fcd494ab71841d695135246693eb3a, type: 2}
   m_ParentPrefab: {fileID: 100100000, guid: 18fcd494ab71841d695135246693eb3a, type: 2}
   m_IsPrefabParent: 0
---- !u!4 &240475670 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400000, guid: 18fcd494ab71841d695135246693eb3a, type: 2}
-  m_PrefabInternal: {fileID: 240475669}
 --- !u!1 &240475671 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 100000, guid: 18fcd494ab71841d695135246693eb3a, type: 2}
@@ -884,6 +880,10 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7b2db84ce676a46b0b1c806d184e80ff, type: 2}
   m_IsPrefabParent: 0
+--- !u!4 &321178050 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 439728, guid: dad8beec991b1489dba702894480ff08, type: 2}
+  m_PrefabInternal: {fileID: 2007492861}
 --- !u!1001 &351991936
 Prefab:
   m_ObjectHideFlags: 0
@@ -3563,7 +3563,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
-  scoreSlider: {fileID: 1086670532}
+  scoreSlider: {fileID: 0}
 --- !u!114 &1388627986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4596,7 +4596,7 @@ MonoBehaviour:
   m_ServerBindToIP: 0
   m_ServerBindAddress: 
   m_NetworkAddress: localhost
-  m_DontDestroyOnLoad: 1
+  m_DontDestroyOnLoad: 0
   m_RunInBackground: 1
   m_ScriptCRCCheck: 1
   m_MaxDelay: 0.01

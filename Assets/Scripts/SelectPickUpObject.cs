@@ -328,12 +328,12 @@ public class SelectPickUpObject : NetworkBehaviour {
 			if (slot != null)
 			{
 				Debug.Log("Slot is null");
-				return true;
+				return false;
 
 			}
 			if (puo.size != slot.size){
 				Debug.Log("Slot is not the right size");
-				return true;
+				return false;
 			}
 		}
 		return false;

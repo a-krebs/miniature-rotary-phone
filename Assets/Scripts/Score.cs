@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 using UnityEngine.Networking;
 
 public class Score : NetworkBehaviour {
@@ -24,12 +25,11 @@ public class Score : NetworkBehaviour {
 	void Update()
 	{
 		scoreSlider.value = score;
-		/* Win state checked here, have win screen and countdown before reloading.
-		 * Will we need to restart the servers? 
-		 * Probably gosh. 
 		if (score == 70){
+			NetworkManager.Shutdown ();
+			SceneManager.LoadScene(0); 
 			
-		}*/
+		}
 	}
 
 	private void PickUpObjectPlaced( GameObject obj, GameObject slot)
