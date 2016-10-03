@@ -11,7 +11,7 @@ public class Score : NetworkBehaviour {
 	float timeLeft = 10.0f;
 	public Text text;
 	public GameObject panelVis;
-	public Slider scoreSlider;                                 
+	public Slider scoreSlider;
 
 	void Start ()
 	{
@@ -29,7 +29,7 @@ public class Score : NetworkBehaviour {
 	void Update()
 	{
 		scoreSlider.value = score;
-		if (score == 70){
+		if (score >= 70){
 			panelVis.SetActive (true);
 			timeLeft -= Time.deltaTime;
 			text.text = "Restart in:" + Mathf.Round(timeLeft);
@@ -52,7 +52,7 @@ public class Score : NetworkBehaviour {
 		Slot s = slot.GetComponent<Slot>();
 
 		if (s.goodFor == Slot.GoodFor.Both) {
-			score += 10;
+			score += 20;
 		} else {
 			score += 0;
 		}

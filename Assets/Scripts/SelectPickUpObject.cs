@@ -322,20 +322,14 @@ public class SelectPickUpObject : NetworkBehaviour {
 	/// Returns true if the 'container' is a slot with the wrong size.
 	/// Returns false otherwise.
 	private bool NotValidSlot(PickUpObject puo, GameObject container) {
-		if (container != null)
-		{
-			Slot slot = container.GetComponent<Slot>();
-			if (slot != null)
-			{
-				Debug.Log("Slot is null");
-				return false;
-
-			}
-			if (puo.size != slot.size){
-				Debug.Log("Slot is not the right size");
-				return false;
-			}
-		}
-		return false;
-	}
+		if (container != null)		 		
+		 		{
+				Slot slot = container.GetComponent<Slot>();		 			
+				if (slot != null && puo.size != slot.size)		 			
+				{		 			
+						return true;		 		
+					}		 			
+			}		 		
+		return false;		 	
+	}		 	
 }
