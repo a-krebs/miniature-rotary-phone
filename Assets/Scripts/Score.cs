@@ -24,6 +24,12 @@ public class Score : NetworkBehaviour {
 	void Update()
 	{
 		scoreSlider.value = score;
+		/* Win state checked here, have win screen and countdown before reloading.
+		 * Will we need to restart the servers? 
+		 * Probably gosh. 
+		if (score == 70){
+			
+		}*/
 	}
 
 	private void PickUpObjectPlaced( GameObject obj, GameObject slot)
@@ -37,9 +43,9 @@ public class Score : NetworkBehaviour {
 		Slot s = slot.GetComponent<Slot>();
 
 		if (s.goodFor == Slot.GoodFor.Both) {
-			score += 20;
-		} else {
 			score += 10;
+		} else {
+			score += 0;
 		}
 
 		Debug.Log("Score: " + score);
@@ -56,9 +62,9 @@ public class Score : NetworkBehaviour {
 		Slot s = slot.GetComponent<Slot>();
 
 		if (s.goodFor == Slot.GoodFor.Both) {
-			score -= 20;
-		} else {
 			score -= 10;
+		} else {
+			score -= 0;
 		}
 
 		Debug.Log("Score: " + score);

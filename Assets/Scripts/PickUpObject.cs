@@ -153,10 +153,14 @@ public class PickUpObject : NetworkBehaviour
 	
 
 		if (parent != null) {
-			Vector3 position = parent.position;
-			position.y += 1.5f;
-			position.x += 0.5f;
-			transform.position = position;
+			if (beingCarried == true) {
+				Vector3 position = parent.position;
+				position.y += 1.5f;
+				position.x += 0.5f;
+				transform.position = position;
+			} else {
+				transform.position = parent.position;
+			}
 
 		} else {
 			GameObject ground = GameObject.FindWithTag("EdgeCollider");

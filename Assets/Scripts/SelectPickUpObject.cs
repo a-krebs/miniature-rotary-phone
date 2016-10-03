@@ -327,7 +327,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 			Slot slot = container.GetComponent<Slot>();
 			if (slot != null && puo.size != slot.size)
 			{
-				return true;
+				return true; //false
 			}
 		}
 		return false;
