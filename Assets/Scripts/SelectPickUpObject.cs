@@ -7,6 +7,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 
 	const float defaultSearchRadius = 5.5f;
 	List<GameObject> availableObjects;
+	List<GameObject> availableContainers;
 	GameObject selected;
 	GameObject carried;
 	GameObject cursor;
@@ -19,23 +20,27 @@ public class SelectPickUpObject : NetworkBehaviour {
 
 	void Awake() {
 		availableObjects = new List<GameObject>();
+		availableContainers = new List<GameObject>();
 		selected = null;
 		carried = null;
 		cursor = GameObject.FindWithTag ("Cursor");
 	}
 
 	void OnTriggerEnter2D (Collider2D other) {
-		if (IsSelectableObject(other.gameObject))
-		{
-			Debug.Log("New PickUpObject or BoxContainer in range.");
+		if (IsSelectableObject(other.gameObject)) {
 			availableObjects.Add(other.gameObject);
+		}
+		if (IsSelectableContainer(other.gameObject)) {
+			availableContainers.Add(other.gameObject);
 		}
 	}
 	
 	void OnTriggerExit2D(Collider2D other) {
 		if (availableObjects.Contains(other.gameObject)) {
-			Debug.Log("PickUpObject or Box went out of range.");
 			availableObjects.Remove(other.gameObject);
+		}
+		if (availableContainers.Contains(other.gameObject)) {
+			availableContainers.Remove(other.gameObject);
 		}
 	}	
 
@@ -47,76 +52,126 @@ public class SelectPickUpObject : NetworkBehaviour {
 
 		if (carried == null)
 		{
-			if (availableObjects.Count == 0) {
-				selected = null;
-				HideCursor();
+			UpdateWhenNotCarrying();
+		} else {
+			UpdateWhenCarrying();
+		}
+	}
+
+	private void UpdateWhenNotCarrying()
+	{
+		if (availableObjects.Count == 0) {
+			selected = null;
+			HideCursor();
+			return;
+		}
+
+		if (selected == null || !availableObjects.Contains(selected)) {
+			if (!UpdateSelected (null))
+			{
 				return;
 			}
+			HideCursor();
+		}
 
-			if (selected == null || !availableObjects.Contains(selected)) {
-				if (!UpdateSelected (null))
-				{
-					return;
-				}
-				HideCursor();
+		if (selected == null) {
+			if (!UpdateSelected (availableObjects[0]))
+			{
+				return;
 			}
+			// TODO remove for prod to hide cursor until selection changes
+			ShowCursor (selected.transform);
+		}
 
+		if (Input.GetKeyDown (KeyCode.E)) {
+			Debug.Log("Selecting next available object.");
+			int next = availableObjects.IndexOf (selected) + 1;
+			if( next == availableObjects.Count )
+			{
+				next = 0;
+			}
+			if (!UpdateSelected (availableObjects[next]))
+			{
+				return;
+			}
+			ShowCursor (selected.transform);
+		} else if (Input.GetKeyDown(KeyCode.Space)) {
+			Debug.Log("Going to pick up object.");
 			if (selected == null) {
-				if (!UpdateSelected (availableObjects[0]))
-				{
-					return;
-				}
-				// TODO remove for prod to hide cursor until selection changes
-				ShowCursor (selected.transform);
+				Debug.Log("No object selected.");
+				return;
 			}
+			if (selected.tag == "Object")
+			{
+				PickUpObject puo = selected.GetComponent<PickUpObject>();
+				carried = selected;
+				selected = null;
+				HideCursor();
+				puo.PickUp(transform, GetPickUpHandler(puo));
+				Debug.Log("Picked up object.");
+			} else if (selected.tag == "BoxContainer") {
+				IContainer container = selected.GetComponent<BoxContainer>();
+				GameObject cObj = selected;
+				selected = null;
+				HideCursor();
+				PickUpObject puo = container.Get(transform, GetGetHandler(cObj));
+				carried = (puo == null ? null : puo.gameObject);
+				Debug.Log("Picked up object.");
+			} else {
+				// TODO error
+				return;
+			}
+		}
+	}
 
-			if (Input.GetKeyDown (KeyCode.E)) {
-				Debug.Log("Selecting next available object.");
-				int next = availableObjects.IndexOf (selected) + 1;
-				if( next == availableObjects.Count )
-				{
-					next = 0;
-				}
-				if (!UpdateSelected (availableObjects[next]))
-				{
-					return;
-				}
-				ShowCursor (selected.transform);
-			} else if (Input.GetMouseButtonDown(0)) {
-				Debug.Log("Going to pick up object.");
-				if (selected == null) {
-					Debug.Log("No object selected.");
-					return;
-				}
-				if (selected.tag == "Object")
-				{
-					PickUpObject puo = selected.GetComponent<PickUpObject>();
-					carried = selected;
-					selected = null;
-					HideCursor();
-					puo.PickUp(transform, GetPickUpHandler());
-					Debug.Log("Picked up object.");
-				} else if (selected.tag == "BoxContainer") {
-					IContainer container = selected.GetComponent<BoxContainer>();
-					selected = null;
-					HideCursor();
-					PickUpObject puo = container.Get(transform, GetGetHandler());
-					carried = (puo == null ? null : puo.gameObject);
-					Debug.Log("Picked up object.");
-				} else {
-					// TODO error
-					return;
-				}
+	private void UpdateWhenCarrying()
+	{
+		if (availableContainers.Count == 0 || selected == null || !availableContainers.Contains(selected)) {
+			if (!UpdateSelected (null))
+			{
+				return;
 			}
-		} else if (Input.GetMouseButtonDown(0)) {
+			HideCursor();
+		}
+
+		if (availableContainers.Count > 0 && selected == null) {
+			if (!UpdateSelected (availableContainers[0]))
+			{
+				return;
+			}
+			// TODO remove for prod to hide cursor until selection changes
+			ShowCursor (selected.transform);
+		}
+
+		if (Input.GetKeyDown (KeyCode.E) && selected != null) {
+			Debug.Log("Selecting next available container.");
+			int next = availableContainers.IndexOf (selected) + 1;
+			if( next == availableContainers.Count )
+			{
+				next = 0;
+			}
+			if (!UpdateSelected (availableContainers[next]))
+			{
+				return;
+			}
+			ShowCursor (selected.transform);
+		} else if (Input.GetKeyDown(KeyCode.Space)) {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
-			GameObject slot = GetClosestEmptySlot(defaultSearchRadius, puo.size);
+			if (NotValidSlot(puo, selected)) {
+				Debug.Log("Slot has wrong size.");
+				return;
+			}
 			GameObject carrying = this.carried;
 			carried = null;
 			// slot might be null, but that's OK
-			puo.PutDown(slot, GetPutDownHandler(carrying));
+			try {
+				puo.PutDown(selected, GetPutDownHandler(carrying, selected));
+			} catch {
+				carried = carrying;
+			}
+			selected = null;
 		}
 	}
 
@@ -128,10 +183,27 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return valid;
 	}
 
-	private NetworkRequest.Result GetPickUpHandler() {
+	private bool IsSelectableContainer(GameObject obj) {
+		bool valid = true;
+		valid &= !availableContainers.Contains(obj);
+		if (valid && (obj.tag == "ObjectSlot" || obj.tag == "BoxContainer")) {
+			IContainer container = IContainerUtils.GetIContainer(obj);
+			valid &= container.Count < container.Capacity;
+		} else {
+			valid = false;
+		}
+		return valid;
+	}
+
+	private NetworkRequest.Result GetPickUpHandler(PickUpObject puo) {
+		NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId objNetId    = puo.gameObject.GetComponent<NetworkIdentity>().netId;
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isServer && isClient) {
+						NetworkRequestService.Instance().NotifyObjectPickUp(playerNetId, objNetId);
+					}
 					return;
 				}
 
@@ -141,10 +213,20 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return handler;
 	}
 
-	private NetworkRequest.Result GetPutDownHandler(GameObject carrying) {
+	private NetworkRequest.Result GetPutDownHandler(GameObject carrying, GameObject container) {
+		NetworkInstanceId playerNetId    = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId objNetId       = carrying.GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
+		if (container != null ) {
+			containerNetId = container.GetComponent<NetworkIdentity>().netId;
+		}
+
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isClient && isServer) {
+						NetworkRequestService.Instance().NotifyObjectPutDown(playerNetId, objNetId, containerNetId);
+					}
 					return;
 				}
 
@@ -154,10 +236,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 		return handler;
 	}
 
-	private NetworkRequest.Result GetGetHandler() {
+	private NetworkRequest.Result GetGetHandler(GameObject container) {
+		NetworkInstanceId playerNetId    = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
+		NetworkInstanceId containerNetId = new NetworkInstanceId(0);
+		if (container != null ) {
+			containerNetId = container.GetComponent<NetworkIdentity>().netId;
+		}
+
 		NetworkRequest.Result handler = delegate(bool success)
 			{
 				if (success) {
+					if (isClient && isServer) {
+						NetworkRequestService.Instance().NotifyContainerGet(playerNetId, containerNetId);
+					}
 					return;
 				}
 
@@ -226,5 +317,19 @@ public class SelectPickUpObject : NetworkBehaviour {
 		} else {
 			return null;
 		}
+	}
+
+	/// Returns true if the 'container' is a slot with the wrong size.
+	/// Returns false otherwise.
+	private bool NotValidSlot(PickUpObject puo, GameObject container) {
+		if (container != null)
+		{
+			Slot slot = container.GetComponent<Slot>();
+			if (slot != null && puo.size != slot.size)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

@@ -6,8 +6,8 @@ using NetworkRequest;
 
 /// Class that sends and receives network requests.
 ///
-/// An instance of his class must be available on the server. The GameObject
-/// must be server-only, and have the tag "NetworkRequestService".
+/// An single instance of his class must be available on the server and each client.
+/// The GameObject must have the tag "NetworkRequestService".
 public class NetworkRequestService : NetworkBehaviour
 {
 	private NetworkClient m_client;
@@ -47,6 +47,10 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.RegisterHandler(ContainerGetFailedMsg.Type, OnContainerGetFailed);
 		m_client.RegisterHandler(ContainerPutSucceededMsg.Type, OnContainerPutSucceeded);
 		m_client.RegisterHandler(ContainerPutFailedMsg.Type, OnContainerPutFailed);
+		m_client.RegisterHandler(ObjectPickUpHappenedMsg.Type, OnObjectPickUpHappened);
+		m_client.RegisterHandler(ObjectPutDownHappenedMsg.Type, OnObjectPutDownHappened);
+		m_client.RegisterHandler(ContainerGetHappenedMsg.Type, OnContainerGetHappened);
+		m_client.RegisterHandler(ContainerPutHappenedMsg.Type, OnContainerPutHappened);
 	}
 
 	/// Request that 'player' picks up 'obj'.
@@ -148,6 +152,52 @@ public class NetworkRequestService : NetworkBehaviour
 		m_client.Send(RequestContainerPutMsg.Type, msg);
 	}
 
+	[Server]
+	public void NotifyObjectPickUp(NetworkInstanceId player, NetworkInstanceId obj)
+	{
+		ObjectPickUpHappenedMsg msg = new ObjectPickUpHappenedMsg();
+		msg.playerNetId = player.Value;
+		msg.objNetId = obj.Value;
+
+		Debug.Log("Notifying clients of ObjectPickUp.");
+		NetworkServer.SendToAll(ObjectPickUpHappenedMsg.Type, msg);
+	}
+
+	[Server]
+	public void NotifyObjectPutDown(NetworkInstanceId player, NetworkInstanceId obj, NetworkInstanceId container)
+	{
+		ObjectPutDownHappenedMsg msg = new ObjectPutDownHappenedMsg();
+		msg.playerNetId = player.Value;
+		msg.objNetId = obj.Value;
+		msg.containerNetId = container.Value;
+
+		Debug.Log("Notifying clients of ObjectPutDown.");
+		NetworkServer.SendToAll(ObjectPutDownHappenedMsg.Type, msg);
+	}
+
+	[Server]
+	public void NotifyContainerGet(NetworkInstanceId player, NetworkInstanceId container)
+	{
+		ContainerGetHappenedMsg msg = new ContainerGetHappenedMsg();
+		msg.playerNetId = player.Value;
+		msg.containerNetId = container.Value;
+
+		Debug.Log("Notifying clients of ContainerGet.");
+		NetworkServer.SendToAll(ContainerGetHappenedMsg.Type, msg);
+	}
+
+	[Server]
+	public void NotifyContainerPut(NetworkInstanceId player, NetworkInstanceId obj, NetworkInstanceId container)
+	{
+		ContainerPutHappenedMsg msg = new ContainerPutHappenedMsg();
+		msg.playerNetId = player.Value;
+		msg.objNetId = obj.Value;
+		msg.containerNetId = container.Value;
+
+		Debug.Log("Notifying clients of ContainerPut.");
+		NetworkServer.SendToAll(ContainerPutHappenedMsg.Type, msg);
+	}
+
 	//// Server-side request handler.
 	[Server]
 	void OnRequestObjectPickUp(NetworkMessage msg)
@@ -182,6 +232,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.objNetId = request.objNetId;
 				NetworkServer.SendToClient(connection.connectionId, ObjectPickUpSucceededMsg.Type, response);
 				Debug.Log("PickUp Succeeded: player with netId " + player.Value + "picked up object with netId " + obj.Value);
+
+				NotifyObjectPickUp(player, obj);
 			} else {
 				SendObjectPickUpFailedMsg(request, connection);
 				Debug.Log("PickUp Failed: player with netId " + player.Value + "did not pickup object with netId " + obj.Value);
@@ -251,6 +303,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.containerNetId = request.containerNetId;
 				NetworkServer.SendToClient(connection.connectionId, ObjectPutDownSucceededMsg.Type, response);
 				Debug.Log("PutDown Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+
+				NotifyObjectPutDown(player, obj, container);
 			} else {
 				SendObjectPutDownFailedMsg(request, connection);
 				Debug.Log("PutDown Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);
@@ -311,6 +365,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.objNetId = obj.Value;
 				NetworkServer.SendToClient(connection.connectionId, ContainerGetSucceededMsg.Type, response);
 				Debug.Log("Get Succeeded: player with netId " + player.Value + " got object with netId " + obj.Value + " from container with netId " + container.Value);
+
+				NotifyContainerGet(player, container);
 			} else {
 				SendContainerGetFailedMsg(request, connection);
 				Debug.Log("Get Failed: player with netId " + player.Value + " did not get anything from container with netId " + container.Value);
@@ -367,7 +423,7 @@ public class NetworkRequestService : NetworkBehaviour
 			if (allow && container.Value != 0)
 			{
 				GameObject containerGameObj = NetworkServer.FindLocalObject(container);
-				containerInstance = PickUpObject.GetIContainer(containerGameObj);
+				containerInstance = IContainerUtils.GetIContainer(containerGameObj);
 
 				if (containerInstance == null)
 				{
@@ -390,6 +446,8 @@ public class NetworkRequestService : NetworkBehaviour
 				response.containerNetId = request.containerNetId;
 				NetworkServer.SendToClient(connection.connectionId, ContainerPutSucceededMsg.Type, response);
 				Debug.Log("Put Succeeded: player with netId " + player.Value + "put down object with netId " + obj.Value + (container.Value == 0 ? "" : " into container with netId " + container.Value));
+
+				NotifyContainerPut(player, obj, container);
 			} else {
 				SendContainerPutFailedMsg(request, connection);
 				Debug.Log("Put Failed: player with netId " + player.Value + " did not put down object with netId " + obj.Value + " and container netId " + container.Value);
@@ -505,6 +563,105 @@ public class NetworkRequestService : NetworkBehaviour
 		Request request = m_requests[requestId];
 		request.Failed();
 		m_requests.Remove(requestId);
+	}
+
+	[Client]
+	private bool IgnoreIfLocalPlayer(NetworkInstanceId player)
+	{
+		GameObject localPlayer = PlayerNumber.GetLocalPlayerGameObject();
+		return player == localPlayer.GetComponent<NetworkIdentity>().netId;
+	}
+
+	[Client]
+	private void OnObjectPickUpHappened(NetworkMessage msg)
+	{
+		if (isServer) {
+			return;
+		}
+
+		ObjectPickUpHappenedMsg happened = msg.ReadMessage<ObjectPickUpHappenedMsg>();
+
+		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
+			return;
+		}
+
+		Debug.Log("Notified of ObjectPickUp.");
+
+		GameObject player = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
+		GameObject obj    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.objNetId));
+
+		obj.GetComponent<PickUpObject>().UpdateParent(player.transform, true);
+	}
+
+	[Client]
+	private void OnObjectPutDownHappened(NetworkMessage msg)
+	{
+		if (isServer) {
+			return;
+		}
+
+		ObjectPutDownHappenedMsg happened = msg.ReadMessage<ObjectPutDownHappenedMsg>();
+
+		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
+			return;
+		}
+
+		Debug.Log("Notified of ObjectPutDown.");
+
+		GameObject obj    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.objNetId));
+		if (happened.containerNetId == 0) {
+			obj.GetComponent<PickUpObject>().UpdateParent(null, false);
+		} else {
+			GameObject container = ClientScene.FindLocalObject(new NetworkInstanceId(happened.containerNetId));
+			obj.GetComponent<PickUpObject>().UpdateParent(container.transform, false);
+		}
+	}
+
+	[Client]
+	private void OnContainerGetHappened(NetworkMessage msg)
+	{
+		if (isServer) {
+			return;
+		}
+
+		ContainerGetHappenedMsg happened = msg.ReadMessage<ContainerGetHappenedMsg>();
+
+		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
+			return;
+		}
+
+		Debug.Log("Notified of ContainerGet.");
+
+		GameObject player    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
+		GameObject container = ClientScene.FindLocalObject(new NetworkInstanceId(happened.containerNetId));
+
+		// TODO encapsulate this within IContainer
+		GameObject child = container.transform.GetChild(0).gameObject;
+		child.GetComponent<SpriteRenderer>().enabled = true;
+		PickUpObject puo = child.GetComponent<PickUpObject>();
+		puo.UpdateParent(player.transform, true);
+	}
+
+	[Client]
+	private void OnContainerPutHappened(NetworkMessage msg)
+	{
+		if (isServer) {
+			return;
+		}
+
+		ContainerPutHappenedMsg happened = msg.ReadMessage<ContainerPutHappenedMsg>();
+
+		if (IgnoreIfLocalPlayer(new NetworkInstanceId(happened.playerNetId))) {
+			return;
+		}
+
+		Debug.Log("Notified of ContainerPut.");
+
+		GameObject player    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
+		GameObject container = ClientScene.FindLocalObject(new NetworkInstanceId(happened.containerNetId));
+		GameObject obj       = ClientScene.FindLocalObject(new NetworkInstanceId(happened.objNetId));
+
+		obj.GetComponent<PickUpObject>().UpdateParent(container.transform, false);
 	}
 
 	[Client]

@@ -35,18 +35,8 @@ public class PickUpObject : NetworkBehaviour
 			throw new System.Exception();
 		}
 
-		Transform oldParent = transform.parent;
-
 		UpdateParent(parent, true);
 
-		if (oldParent != null) {
-			GameObject obj = oldParent.gameObject;
-			if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
-				OnPickedUp (this.gameObject, obj);
-            }
-		} else if (OnPickedUp != null) {
-			OnPickedUp (this.gameObject, null);
-		}
 	}
 
 	/// Pick up the object.
@@ -70,21 +60,18 @@ public class PickUpObject : NetworkBehaviour
 			PickUpInternal(parent);
 			handler(true);
 		} else if (isClient) {
-			GameObject player = PlayerNumber.GetLocalPlayerGameObject();
-			NetworkInstanceId playerNetId = player.GetComponent<NetworkIdentity>().netId;
 			Transform previousParent = transform.parent;
-			Vector2 previousPosition = transform.position;
 			Result internalHandler = delegate (bool success)
 				{
 					if(!success)
 					{
 						Debug.Log("PickUpObject.PickedUp failure handler.");
-						this.beingCarried = false;
-						this.transform.position = previousPosition;
-						this.transform.parent = previousParent;
+						this.UpdateParent(previousParent, false);
 					}
 					handler(success);
 				};
+
+			NetworkInstanceId playerNetId = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			Debug.Log("Picking up PickUpObject, player with netId " + playerNetId + ", object with netId " + netId.Value);
 			PickUpInternal(parent);
 			NetworkRequestService.Instance().RequestObjectPickUp(playerNetId, netId, internalHandler);
@@ -98,7 +85,7 @@ public class PickUpObject : NetworkBehaviour
 	private void PutDownInternal(GameObject container)
 	{
 		if (container != null) {
-			IContainer c = GetIContainer(container);
+			IContainer c = IContainerUtils.GetIContainer(container);
 			if (c.Count >= c.Capacity) {
 				Debug.Log("Container full.");
 				throw new System.Exception();
@@ -106,14 +93,6 @@ public class PickUpObject : NetworkBehaviour
 			UpdateParent(container.transform, false);
 		} else {
 			UpdateParent(null, false);
-		}
-
-		if (OnPlaced != null) {
-			if (container != null && container.GetComponent<Slot>() != null) {
-				OnPlaced (this.gameObject, container);
-			} else {
-				OnPlaced (this.gameObject, null);
-			}
 		}
 	}
 
@@ -141,21 +120,19 @@ public class PickUpObject : NetworkBehaviour
 			PutDownInternal(container);
 			handler(true);
 		} else if (isClient) {
-			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
-            Transform previousParent = transform.parent;
-			Vector2 previousPosition = transform.position;
+
+			Transform previousParent = transform.parent;
 			Result internalHandler = delegate (bool success)
 				{
 					if(!success)
 					{
-						Debug.Log("PickUpObject.PickedUp failure handler.");
-						this.beingCarried = false;
-						this.transform.position = previousPosition;
-						this.transform.parent = previousParent;
+						Debug.Log("PickUpObject.PutDown failure handler.");
+						this.UpdateParent(previousParent, true);
 					}
 					handler(success);
 				};
 
+			NetworkInstanceId player = PlayerNumber.GetLocalPlayerGameObject().GetComponent<NetworkIdentity>().netId;
 			Debug.Log("Putting down PickUpObject, player with netId " + player.Value + ", object with netId " + netId.Value + ", container netId: " + containerNetId.Value);
 			PutDownInternal(container);
 			NetworkRequestService.Instance().RequestObjectPutDown(player, netId, containerNetId, internalHandler);
@@ -169,7 +146,12 @@ public class PickUpObject : NetworkBehaviour
 	public void UpdateParent(Transform parent, bool beingCarried)
 	{
 		this.beingCarried = beingCarried;
-        if (parent != null) {
+
+		Transform oldParent = transform.parent;
+
+		UpdateSortingOrder(parent);
+
+		if (parent != null) {
 			transform.position = parent.position;
 		} else {
 			GameObject ground = GameObject.FindWithTag("EdgeCollider");
@@ -180,27 +162,47 @@ public class PickUpObject : NetworkBehaviour
 			transform.position = new Vector2(transform.position.x, closest.y + bounds.size.y);
 		}
 		transform.parent = parent;
+
+		// fire events last so that event consumers have the current state of the PickUpObject
+		FireEvents(oldParent, parent);
 	}
 
-	/// Utility method to get the IContainer from different GameObjects.
-	///
-	/// Throws NotImplementedException for unknown GameObject tags.
-	public static IContainer GetIContainer(GameObject containerGameObj)
+	private void UpdateSortingOrder(Transform newParent)
 	{
-		IContainer containerInstance = null;
-		if (containerGameObj.tag == "BoxContainer")
-		{
-			Debug.Log("Put into BoxContainer.");
-			BoxContainer box = containerGameObj.GetComponent<BoxContainer>();
-			containerInstance = box;
-		} else if (containerGameObj.tag == "ObjectSlot") {
-			Debug.Log("Put into ObjectSlot.");
-			Slot slot = containerGameObj.GetComponent<Slot>();
-			containerInstance = slot;
-		} else {
-			throw new System.NotImplementedException();
-		}
+		SpriteRenderer rend = GetComponent<SpriteRenderer>();
 
-		return containerInstance;
+		if (newParent != null && newParent.gameObject.tag == "LocalPlayer") {
+			rend.sortingOrder = 13; // magic numbers yaaay (this is 1 higher than the LocalPlayer's sort order (see CharacterSprite.cs))
+		} else if (newParent != null && newParent.gameObject.tag == "Player") {
+			rend.sortingOrder = 11; // this is one higher than the Player prefab's sort order
+		} else {
+			rend.sortingOrder = 5; // back to PickUpObject prefab default sort order
+		}
+	}
+
+	private void FireEvents(Transform oldParent, Transform newParent)
+	{
+		GameObject newParentObj = newParent != null ? newParent.gameObject : null;
+
+		if (newParentObj != null && (newParentObj.tag == "LocalPlayer" || newParentObj.tag == "Player")) {
+			// OnPickedUp
+			if (oldParent != null) {
+				GameObject obj = oldParent.gameObject;
+				if (obj.GetComponent<Slot>() != null && OnPickedUp != null) {
+					OnPickedUp (this.gameObject, obj);
+				}
+			} else if (OnPickedUp != null) {
+				OnPickedUp (this.gameObject, null);
+			}
+		} else {
+			// OnPlaced
+			if (OnPlaced != null) {
+				if (newParentObj != null && newParentObj.GetComponent<Slot>() != null) {
+					OnPlaced (this.gameObject, newParentObj);
+				} else {
+					OnPlaced (this.gameObject, null);
+				}
+			}
+		}
 	}
 }

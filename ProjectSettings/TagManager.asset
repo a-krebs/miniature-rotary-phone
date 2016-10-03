@@ -53,14 +53,8 @@ TagManager:
   - name: Slots
     uniqueID: 4292247785
     locked: 0
-  - name: Players
-    uniqueID: 1027846149
-    locked: 0
-  - name: Objects
+  - name: MovingThings
     uniqueID: 3788517669
-    locked: 0
-  - name: BoxContainers
-    uniqueID: 3406549861
     locked: 0
   - name: Cursor
     uniqueID: 2287852313
