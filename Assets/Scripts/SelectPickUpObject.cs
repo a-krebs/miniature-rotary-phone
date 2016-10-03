@@ -325,9 +325,15 @@ public class SelectPickUpObject : NetworkBehaviour {
 		if (container != null)
 		{
 			Slot slot = container.GetComponent<Slot>();
-			if (slot != null && puo.size != slot.size)
+			if (slot != null)
 			{
-				return true; //false
+				Debug.Log("Slot is null");
+				return true;
+
+			}
+			if (puo.size != slot.size){
+				Debug.Log("Slot is not the right size");
+				return true;
 			}
 		}
 		return false;

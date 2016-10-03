@@ -10,7 +10,7 @@ public class Score : NetworkBehaviour {
 
 	public Slider scoreSlider;                                 
 
-	void Awake ()
+	void Start ()
 	{
 		score = 0;
 	}
