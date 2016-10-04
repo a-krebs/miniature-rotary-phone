@@ -2757,6 +2757,7 @@ MonoBehaviour:
   text: {fileID: 111930787}
   panelVis: {fileID: 2008516201}
   scoreSlider: {fileID: 1086670532}
+  manager: {fileID: 0}
 --- !u!114 &1086670535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3686,9 +3687,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   score: 0
-  text: {fileID: 0}
-  panelVis: {fileID: 0}
-  scoreSlider: {fileID: 0}
+  text: {fileID: 111930787}
+  panelVis: {fileID: 2008516201}
+  scoreSlider: {fileID: 1086670532}
+  manager: {fileID: 0}
 --- !u!114 &1388627986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4460,7 +4462,7 @@ GameObject:
   - 114: {fileID: 1683138853}
   - 114: {fileID: 1683138852}
   m_Layer: 5
-  m_Name: scoreCanvas
+  m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -12,11 +12,13 @@ public class Score : NetworkBehaviour {
 	public Text text;
 	public GameObject panelVis;
 	public Slider scoreSlider;
+	public NetworkManager manager;
 
 	void Start ()
 	{
 		score = 0;
 		panelVis.SetActive (false);
+		manager = GetComponent<NetworkManager> ();
 
 	}
 
@@ -35,6 +37,7 @@ public class Score : NetworkBehaviour {
 			text.text = "Restart in:" + Mathf.Round(timeLeft);
 			if(timeLeft < 0)
 			{
+
 				NetworkManager.Shutdown ();
 				SceneManager.LoadScene(0);
 			}
