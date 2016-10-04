@@ -657,7 +657,7 @@ public class NetworkRequestService : NetworkBehaviour
 
 		Debug.Log("Notified of ContainerPut.");
 
-		GameObject player    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
+		//GameObject player    = ClientScene.FindLocalObject(new NetworkInstanceId(happened.playerNetId));
 		GameObject container = ClientScene.FindLocalObject(new NetworkInstanceId(happened.containerNetId));
 		GameObject obj       = ClientScene.FindLocalObject(new NetworkInstanceId(happened.objNetId));
 
