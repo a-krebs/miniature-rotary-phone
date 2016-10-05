@@ -150,7 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   placeholder: {fileID: 21300000, guid: deddef3b0e44345aa9ee279c1b319539, type: 3}
   greenBackground: {fileID: 21300000, guid: dad3f48efc4d01841be0412444d104f7, type: 3}
-  pinkBackground: {fileID: 21300000, guid: b742ad894d444fb4d8de53ce3e761844, type: 3}
+  pinkBackground: {fileID: 21300000, guid: ec1ced82a00f144e783d4ededf27c2ad, type: 3}
   background: {fileID: 0}
 --- !u!114 &11454744
 MonoBehaviour:

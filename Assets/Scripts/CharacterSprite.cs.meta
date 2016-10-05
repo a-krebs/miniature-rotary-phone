@@ -1,10 +1,14 @@
 fileFormatVersion: 2
 guid: 8abc988f3189c4e5ea31921ac522cd4c
-timeCreated: 1468735011
+timeCreated: 1475629803
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - placeholder: {instanceID: 0}
+  - greenBackground: {fileID: 21300000, guid: dad3f48efc4d01841be0412444d104f7, type: 3}
+  - pinkBackground: {fileID: 21300000, guid: ec1ced82a00f144e783d4ededf27c2ad, type: 3}
+  - background: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
