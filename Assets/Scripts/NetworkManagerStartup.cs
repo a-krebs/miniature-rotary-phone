@@ -50,7 +50,7 @@ public class NetworkManagerStartup : MonoBehaviour {
 	}
 
 	void Update() {
-		if(Input.GetKeyDown(KeyCode.R)){
+		if(Input.GetKeyDown("joystick button 10")){
 			NetworkManager.Shutdown ();
 			SceneManager.LoadScene(0); 
 		}
