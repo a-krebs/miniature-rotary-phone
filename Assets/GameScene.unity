@@ -3688,7 +3688,7 @@ GameObject:
   - 114: {fileID: 1388627986}
   - 114: {fileID: 1388627985}
   m_Layer: 0
-  m_Name: Score Manager (Server only)
+  m_Name: Score Manager
   m_TagString: ScoreManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
