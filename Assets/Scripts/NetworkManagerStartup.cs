@@ -51,7 +51,7 @@ public class NetworkManagerStartup : MonoBehaviour {
 
 	void Update() {
 		Network.TestConnection (true);
-		if(Input.GetKeyDown("joystick button 10")){
+		if(Input.GetKeyDown("joystick button 6")){
 			NetworkManager.Shutdown ();
 			SceneManager.LoadScene(0); 
 		}
