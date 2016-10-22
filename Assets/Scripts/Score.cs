@@ -14,7 +14,7 @@ public class Score : NetworkBehaviour {
 	public Slider scoreSlider;
 	public NetworkManager manager;
 
-	void Start ()
+	void Awake ()
 	{
 		score = 0;
 		panelVis.SetActive (false);
