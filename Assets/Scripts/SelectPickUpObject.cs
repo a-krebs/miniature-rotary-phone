@@ -83,7 +83,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 			ShowCursor (selected.transform);
 		}
 
-		if (Input.GetKeyDown (KeyCode.E)) {
+		if (Input.GetKeyDown ("joystick button 18")) {
 			Debug.Log("Selecting next available object.");
 			int next = availableObjects.IndexOf (selected) + 1;
 			if( next == availableObjects.Count )
@@ -95,7 +95,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 				return;
 			}
 			ShowCursor (selected.transform);
-		} else if (Input.GetKeyDown(KeyCode.Space)) {
+		} else if (Input.GetKeyDown ("joystick button 16")) {
 			Debug.Log("Going to pick up object.");
 			if (selected == null) {
 				Debug.Log("No object selected.");
@@ -143,7 +143,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 			ShowCursor (selected.transform);
 		}
 
-		if (Input.GetKeyDown (KeyCode.E) && selected != null) {
+		if (Input.GetKeyDown ("joystick button 18") && selected != null) {
 			Debug.Log("Selecting next available container.");
 			int next = availableContainers.IndexOf (selected) + 1;
 			if( next == availableContainers.Count )
@@ -155,7 +155,7 @@ public class SelectPickUpObject : NetworkBehaviour {
 				return;
 			}
 			ShowCursor (selected.transform);
-		} else if (Input.GetKeyDown(KeyCode.Space)) {
+		} else if (Input.GetKeyDown("joystick button 16")) {
 			// put down
 			Debug.Log("Going to put down object.");
 			PickUpObject puo = carried.GetComponent<PickUpObject>();
