@@ -3696,7 +3696,7 @@ GameObject:
   - 114: {fileID: 1388627986}
   - 114: {fileID: 1388627985}
   m_Layer: 0
-  m_Name: Score Manager (Server only)
+  m_Name: Score Manager
   m_TagString: ScoreManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4818,7 +4818,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1909707926}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -822479833, guid: 870353891bb340e2b2a9c8707e7419ba, type: 3}
+  m_Script: {fileID: 11500000, guid: c00f871a1f0174e1ea7aaac786a91bf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_NetworkPort: 7777
