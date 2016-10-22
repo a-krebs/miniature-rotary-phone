@@ -41,7 +41,9 @@ public class CharacterSprite : NetworkBehaviour {
 			animator.runtimeAnimatorController = Resources.Load("Animation/dude") as RuntimeAnimatorController;
 
 		} else {
-			rend.sprite = placeholder;
+			background.sprite = greenBackground;
+			rend.sortingOrder = 12;
+			animator.runtimeAnimatorController = Resources.Load("Animation/dude") as RuntimeAnimatorController;
 		}
 	}
 
