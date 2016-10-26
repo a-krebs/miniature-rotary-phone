@@ -7,7 +7,7 @@ public class ClickInvoker : MonoBehaviour {
 	public Button button;
 
 	void Update(){
-		if(Input.GetKeyDown("joystick button 9")){
+		if(InputManager.StartGamePressed()){
 			button.onClick.Invoke ();
 		}
 	}
